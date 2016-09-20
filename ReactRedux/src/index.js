@@ -1,6 +1,9 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var connect = require('react-redux').connect;
+var Provider = require('react-redux').Provider;
+
 var Route = require('react-router').Route;
 var Router = require('react-router').Router;
 var HashHistory = require('react-router').hashHistory;
@@ -8,6 +11,10 @@ var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 
 var isEmail = require('validator/lib/isEmail');
+
+var store = require('./store');
+
+var loadEmailList = require('./actions/actions').loadEmailList;
 
 var Main = React.createClass({
     render: function() {
@@ -20,17 +27,16 @@ var Main = React.createClass({
     }
 });
 
-var UploadCSV = React.createClass({
+var UploadCSV = connect()(React.createClass({
     handleFile: function(e) {
         this.file = e.target.files[0];
     },
 
     handleSubmit: function() {
         var reader = new FileReader();
-        reader.onload = function() {
-            // Entire file
-            // console.log(this.result);
+        var dispatch = this.props.dispatch;
 
+        reader.onload = function() {
             var array = [];
 
             // By lines
@@ -42,7 +48,8 @@ var UploadCSV = React.createClass({
                     console.log('"' + lines[line] + '" is not valid email.');
                 }
             }
-            console.log(array);
+
+            dispatch(loadEmailList(array));
         };
         reader.readAsText(this.file);
     },
@@ -59,7 +66,7 @@ var UploadCSV = React.createClass({
             </div>
         );
     }
-});
+}));
 
 var InputGift = React.createClass({
     handleGiftName: function(e) {
@@ -144,16 +151,18 @@ var Winner = React.createClass({
 
 
 ReactDOM.render(
-    <Router history={HashHistory}>
-        <Route path="/">
-            <IndexRoute component={ Main } />
+    <Provider store={ store } >
+        <Router history={HashHistory}>
+            <Route path="/">
+                <IndexRoute component={ Main } />
 
-            <Route path="uploadCSV" component={ UploadCSV } />
-            <Route path="inputGift" component={ InputGift } />
-            <Route path="lottery" component={ Lottery } />
-            <Route path="winner" component={ Winner } />
-        </Route>
-    </Router>
+                <Route path="uploadCSV" component={ UploadCSV } />
+                <Route path="inputGift" component={ InputGift } />
+                <Route path="lottery" component={ Lottery } />
+                <Route path="winner" component={ Winner } />
+            </Route>
+        </Router>
+    </Provider>
     ,
     document.getElementById('content')
 );
