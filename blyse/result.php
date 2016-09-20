@@ -33,12 +33,16 @@ if (($fp = fopen($csv_file['tmp_name'], "r")) !== FALSE) {
 }
 
 fclose($fp);
-//unlink($csv_file['tmp_name']);
+unlink($csv_file['tmp_name']);
 foreach($body as $prize) {
     for($idx = 1; $idx <= $prize['prize_count']; $idx++) {
         shuffle($people);
         if(empty($prize['prize_name'])) {
             $prize['prize_name'] = "상품명은 없지만 넣어줄께";
+        }
+        if(count($people) == 0) {
+            echo "사람이 없네.. 나주세요 나 blythe2586@gm...<br>";
+            exit;
         }
         echo $prize['prize_name']. " - " .$idx." - " . array_pop($people) ."<br>";
     }
