@@ -62,7 +62,8 @@
 
 	var store = __webpack_require__(267);
 
-	var loadEmailList = __webpack_require__(272).loadEmailList;
+	var loadEmailList = __webpack_require__(273).loadEmailList;
+	var addGift = __webpack_require__(273).addGift;
 
 	var Main = React.createClass({
 	    displayName: 'Main',
@@ -92,14 +93,18 @@
 	        this.file = e.target.files[0];
 	    },
 
-	    handleSubmit: function handleSubmit() {
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+
+	        if (!this.file) {
+	            console.log('file is not selected.');
+	            return;
+	        }
+
 	        var reader = new FileReader();
 	        var dispatch = this.props.dispatch;
 
 	        reader.onload = function () {
-	            // Entire file
-	            // console.log(this.result);
-
 	            var array = [];
 
 	            // By lines
@@ -111,8 +116,7 @@
 	                    console.log('"' + lines[line] + '" is not valid email.');
 	                }
 	            }
-	            //console.log(array);
-	            //console.log(loadEmailList(array));
+
 	            dispatch(loadEmailList(array));
 	        };
 	        reader.readAsText(this.file);
@@ -142,19 +146,30 @@
 	    }
 	}));
 
-	var InputGift = React.createClass({
+	var InputGift = connect()(React.createClass({
 	    displayName: 'InputGift',
 
+
 	    handleGiftName: function handleGiftName(e) {
-	        console.log(e.target.value);
+	        this.giftName = e.target.value.trim();
 	    },
 
 	    handleGiftCount: function handleGiftCount(e) {
-	        console.log(e.target.value);
+	        this.giftCount = parseInt(e.target.value);
 	    },
 
-	    handleSubmit: function handleSubmit() {
-	        console.log('submit');
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+
+	        if (!this.giftName || this.giftName === '') {
+	            return;
+	        }
+
+	        if (!this.giftCount) {
+	            this.giftCount = 1;
+	        }
+
+	        this.props.dispatch(addGift(this.giftName, this.giftCount));
 	    },
 
 	    render: function render() {
@@ -201,7 +216,7 @@
 	            )
 	        );
 	    }
-	});
+	}));
 
 	var Lottery = React.createClass({
 	    displayName: 'Lottery',
@@ -29544,9 +29559,11 @@
 	var combineReducers = __webpack_require__(179).combineReducers;
 
 	var emailListReducer = __webpack_require__(270);
+	var giftReducer = __webpack_require__(272);
 
 	var reducer = combineReducers({
-	    emailList: emailListReducer
+	    emailList: emailListReducer,
+	    giftList: giftReducer
 	});
 
 	module.exports = reducer;
@@ -29592,13 +29609,53 @@
 
 	var ActionTypes = {
 	    RESET: 'RESET',
-	    LOAD_EMAIL_LIST: 'LOAD_EMAIL_LIST'
+	    LOAD_EMAIL_LIST: 'LOAD_EMAIL_LIST',
+	    ADD_GIFT: 'ADD_GIFT'
 	};
 
 	module.exports = ActionTypes;
 
 /***/ },
 /* 272 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ActionTypes = __webpack_require__(271);
+
+	var giftReducer = function giftReducer(state, action) {
+	    if (typeof state === 'undefined') {
+	        return {
+	            giftList: []
+	        };
+	    }
+
+	    switch (action.type) {
+	        case ActionTypes.ADD_GIFT:
+	            var newGiftList = state.giftList.slice();
+	            newGiftList.push({
+	                name: action.giftName,
+	                count: action.giftCount
+	            });
+
+	            return {
+	                giftList: newGiftList
+	            };
+
+	        case ActionTypes.RESET:
+	            return {
+	                giftList: []
+	            };
+
+	        default:
+	            return state;
+	    }
+	};
+
+	module.exports = giftReducer;
+
+/***/ },
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29617,6 +29674,14 @@
 	    return {
 	        type: ActionTypes.LOAD_EMAIL_LIST,
 	        emailList: emailList
+	    };
+	};
+
+	Actions.addGift = function (giftName, giftCount) {
+	    return {
+	        type: ActionTypes.ADD_GIFT,
+	        giftName: giftName,
+	        giftCount: giftCount
 	    };
 	};
 

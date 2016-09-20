@@ -16,4 +16,12 @@ Actions.loadEmailList = function(emailList) {
     };
 };
 
+Actions.addGift = function(giftName, giftCount) {
+    return {
+        type: ActionTypes.ADD_GIFT,
+        giftName: giftName,
+        giftCount: giftCount
+    };
+};
+
 module.exports = Actions;

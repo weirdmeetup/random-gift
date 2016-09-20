@@ -15,6 +15,7 @@ var isEmail = require('validator/lib/isEmail');
 var store = require('./store');
 
 var loadEmailList = require('./actions/actions').loadEmailList;
+var addGift = require('./actions/actions').addGift;
 
 var Main = React.createClass({
     render: function() {
@@ -32,7 +33,14 @@ var UploadCSV = connect()(React.createClass({
         this.file = e.target.files[0];
     },
 
-    handleSubmit: function() {
+    handleSubmit: function(e) {
+        e.preventDefault();
+
+        if (!this.file) {
+            console.log('file is not selected.');
+            return;
+        }
+
         var reader = new FileReader();
         var dispatch = this.props.dispatch;
 
@@ -68,17 +76,28 @@ var UploadCSV = connect()(React.createClass({
     }
 }));
 
-var InputGift = React.createClass({
+var InputGift = connect()(React.createClass({
+
     handleGiftName: function(e) {
-        console.log(e.target.value);
+        this.giftName = e.target.value.trim();
     },
 
     handleGiftCount: function(e) {
-        console.log(e.target.value);
+        this.giftCount = parseInt(e.target.value);
     },
 
-    handleSubmit: function() {
-        console.log('submit');
+    handleSubmit: function(e) {
+        e.preventDefault();
+
+        if (!this.giftName || this.giftName === '') {
+            return;
+        }
+
+        if (!this.giftCount) {
+            this.giftCount = 1;
+        }
+
+        this.props.dispatch(addGift(this.giftName, this.giftCount));
     },
 
     render: function() {
@@ -107,7 +126,7 @@ var InputGift = React.createClass({
             </div>
         );
     }
-});
+}));
 
 var Lottery = React.createClass({
     render: function() {
