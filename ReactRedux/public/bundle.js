@@ -55,6 +55,8 @@
 	var IndexRoute = __webpack_require__(172).IndexRoute;
 	var Link = __webpack_require__(172).Link;
 
+	var isEmail = __webpack_require__(235);
+
 	var Main = React.createClass({
 	    displayName: 'Main',
 
@@ -94,7 +96,11 @@
 	            // By lines
 	            var lines = this.result.split('\n');
 	            for (var line = 0; line < lines.length; line++) {
-	                array.push(lines[line]);
+	                if (isEmail(lines[line])) {
+	                    array.push(lines[line]);
+	                } else {
+	                    console.log('"' + lines[line] + '" is not valid email.');
+	                }
 	            }
 	            console.log(array);
 	        };
@@ -128,6 +134,18 @@
 	var InputGift = React.createClass({
 	    displayName: 'InputGift',
 
+	    handleGiftName: function handleGiftName(e) {
+	        console.log(e.target.value);
+	    },
+
+	    handleGiftCount: function handleGiftCount(e) {
+	        console.log(e.target.value);
+	    },
+
+	    handleSubmit: function handleSubmit() {
+	        console.log('submit');
+	    },
+
 	    render: function render() {
 	        return React.createElement(
 	            'div',
@@ -138,9 +156,37 @@
 	                'InputGift'
 	            ),
 	            React.createElement(
+	                'form',
+	                { onSubmit: this.handleSubmit },
+	                React.createElement('input', { type: 'text', onChange: this.handleGiftName }),
+	                React.createElement('input', { type: 'number', defaultValue: '1', min: '1', onChange: this.handleGiftCount }),
+	                React.createElement('input', { type: 'submit', value: '경품 추가' })
+	            ),
+	            React.createElement(
 	                Link,
 	                { to: '/lottery' },
 	                'Go to lottery'
+	            ),
+	            React.createElement(
+	                'h1',
+	                null,
+	                'Gift List'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물1 2개',
+	                    React.createElement('input', { type: 'button', value: '삭제' })
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물2 2개',
+	                    React.createElement('input', { type: 'button', value: '삭제' })
+	                )
 	            )
 	        );
 	    }
@@ -162,6 +208,31 @@
 	                Link,
 	                { to: '/winner' },
 	                'Go to winner'
+	            ),
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 목록'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물 1 / 2 - ',
+	                    React.createElement(
+	                        'b',
+	                        null,
+	                        'a@gmail.com'
+	                    )
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물 2 / 2 - ',
+	                    React.createElement('input', { type: 'button', value: '추첨' })
+	                )
 	            )
 	        );
 	    }
@@ -183,6 +254,35 @@
 	                Link,
 	                { to: '/' },
 	                'Reset'
+	            ),
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 목록'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물 1 / 2 - ',
+	                    React.createElement(
+	                        'b',
+	                        null,
+	                        'a@gmail.com'
+	                    )
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '선물 2 / 2 - ',
+	                    React.createElement(
+	                        'b',
+	                        null,
+	                        'b@gmail.com'
+	                    )
+	                )
 	            )
 	        );
 	    }
@@ -27218,6 +27318,237 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = (0, _createRouterHistory2.default)(_createHashHistory2.default);
+	module.exports = exports['default'];
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isEmail;
+
+	var _assertString = __webpack_require__(236);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	var _merge = __webpack_require__(237);
+
+	var _merge2 = _interopRequireDefault(_merge);
+
+	var _isByteLength = __webpack_require__(238);
+
+	var _isByteLength2 = _interopRequireDefault(_isByteLength);
+
+	var _isFQDN = __webpack_require__(239);
+
+	var _isFQDN2 = _interopRequireDefault(_isFQDN);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var default_email_options = {
+	  allow_display_name: false,
+	  allow_utf8_local_part: true,
+	  require_tld: true
+	};
+
+	/* eslint-disable max-len */
+	/* eslint-disable no-control-regex */
+	var displayName = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\s]*<(.+)>$/i;
+	var emailUserPart = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~]+$/i;
+	var quotedEmailUser = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f]))*$/i;
+	var emailUserUtf8Part = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+$/i;
+	var quotedEmailUserUtf8 = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*$/i;
+	/* eslint-enable max-len */
+	/* eslint-enable no-control-regex */
+
+	function isEmail(str, options) {
+	  (0, _assertString2.default)(str);
+	  options = (0, _merge2.default)(options, default_email_options);
+
+	  if (options.allow_display_name) {
+	    var display_email = str.match(displayName);
+	    if (display_email) {
+	      str = display_email[1];
+	    }
+	  }
+
+	  var parts = str.split('@');
+	  var domain = parts.pop();
+	  var user = parts.join('@');
+
+	  var lower_domain = domain.toLowerCase();
+	  if (lower_domain === 'gmail.com' || lower_domain === 'googlemail.com') {
+	    user = user.replace(/\./g, '').toLowerCase();
+	  }
+
+	  if (!(0, _isByteLength2.default)(user, { max: 64 }) || !(0, _isByteLength2.default)(domain, { max: 256 })) {
+	    return false;
+	  }
+
+	  if (!(0, _isFQDN2.default)(domain, { require_tld: options.require_tld })) {
+	    return false;
+	  }
+
+	  if (user[0] === '"') {
+	    user = user.slice(1, user.length - 1);
+	    return options.allow_utf8_local_part ? quotedEmailUserUtf8.test(user) : quotedEmailUser.test(user);
+	  }
+
+	  var pattern = options.allow_utf8_local_part ? emailUserUtf8Part : emailUserPart;
+
+	  var user_parts = user.split('.');
+	  for (var i = 0; i < user_parts.length; i++) {
+	    if (!pattern.test(user_parts[i])) {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 236 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = assertString;
+	function assertString(input) {
+	  if (typeof input !== 'string') {
+	    throw new TypeError('This library (validator.js) validates strings only');
+	  }
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 237 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = merge;
+	function merge() {
+	  var obj = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var defaults = arguments[1];
+
+	  for (var key in defaults) {
+	    if (typeof obj[key] === 'undefined') {
+	      obj[key] = defaults[key];
+	    }
+	  }
+	  return obj;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	exports.default = isByteLength;
+
+	var _assertString = __webpack_require__(236);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/* eslint-disable prefer-rest-params */
+	function isByteLength(str, options) {
+	  (0, _assertString2.default)(str);
+	  var min = void 0;
+	  var max = void 0;
+	  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
+	    min = options.min || 0;
+	    max = options.max;
+	  } else {
+	    // backwards compatibility: isByteLength(str, min [, max])
+	    min = arguments[1];
+	    max = arguments[2];
+	  }
+	  var len = encodeURI(str).split(/%..|./).length - 1;
+	  return len >= min && (typeof max === 'undefined' || len <= max);
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 239 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isFDQN;
+
+	var _assertString = __webpack_require__(236);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	var _merge = __webpack_require__(237);
+
+	var _merge2 = _interopRequireDefault(_merge);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var default_fqdn_options = {
+	  require_tld: true,
+	  allow_underscores: false,
+	  allow_trailing_dot: false
+	};
+
+	function isFDQN(str, options) {
+	  (0, _assertString2.default)(str);
+	  options = (0, _merge2.default)(options, default_fqdn_options);
+
+	  /* Remove the optional trailing dot before checking validity */
+	  if (options.allow_trailing_dot && str[str.length - 1] === '.') {
+	    str = str.substring(0, str.length - 1);
+	  }
+	  var parts = str.split('.');
+	  if (options.require_tld) {
+	    var tld = parts.pop();
+	    if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
+	      return false;
+	    }
+	  }
+	  for (var part, i = 0; i < parts.length; i++) {
+	    part = parts[i];
+	    if (options.allow_underscores) {
+	      part = part.replace(/_/g, '');
+	    }
+	    if (!/^[a-z\u00a1-\uffff0-9-]+$/i.test(part)) {
+	      return false;
+	    }
+	    if (/[\uff01-\uff5e]/.test(part)) {
+	      // disallow full-width chars
+	      return false;
+	    }
+	    if (part[0] === '-' || part[part.length - 1] === '-') {
+	      return false;
+	    }
+	  }
+	  return true;
+	}
 	module.exports = exports['default'];
 
 /***/ }
