@@ -1,6 +1,3 @@
-<?php
-
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,28 +13,23 @@
     .wrap {
         margin: 20px;
     }
-
     .row {
         margin: 0;
         width: 1000px;
     }
-
     .form-horizontal .form-group {
         margin: 0 0 10px 0;
 
     }
-
     .template {
         display: none;
     }
-
     .btn {
         width: 100%;
     }
 
 </style>
 <div class="wrap">
-
     <div class="row">
         <form class="form-horizontal" action="./result.php" method="POST" enctype="multipart/form-data">
             <div class="form-group">
@@ -48,7 +40,6 @@
                 <div class="col-sm-2">
                     <input type="button" class="btn btn_add_prize" value="+">
                 </div>
-
             </div>
             <div class="form-group prize_form_default prize">
                 <label for="ipt_prize_1" class="control-label col-sm-2">상품</label>
@@ -83,8 +74,6 @@
                     <input type="button" class="btn btn_remove_prize" value="-">
                 </div>
             </div>
-
-
             <div class="form-group">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-8">
@@ -160,12 +149,8 @@
                 };
                 data.push(_tmp);
             }
-
-
             $("input.ipt_data").val(JSON.stringify(data));
             $("form").submit();
-
-
         });
     })
 </script>

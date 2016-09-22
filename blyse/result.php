@@ -18,8 +18,6 @@ if(!isset($_POST['data']) || empty($_POST['data'])) {
 }
 $csv_file = $_FILES['ipt_file'];
 $body = json_decode($_POST['data'], true);
-
-//$fp = fopen($csv_file['tmp_name'], 'r');
 $people = array();
 if (($fp = fopen($csv_file['tmp_name'], "r")) !== FALSE) {
     while (($data = fgetcsv($fp)) !== FALSE) {
@@ -49,12 +47,10 @@ foreach($body as $prize) {
             $prize_winner = array_pop($people);
             array_push($tmp['prize_winner'], $prize_winner);
         }
-        //echo $prize['prize_name']. " - " .$idx." - " . array_pop($people) ."<br>";
     }
     array_push($res, $tmp);
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -108,7 +104,6 @@ foreach($body as $prize) {
         </table>
         <?php endforeach; ?>
     </div>
-
 </div>
 </body>
 
