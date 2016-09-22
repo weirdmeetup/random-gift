@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<script type="text/javascript" src="functions.js"></script>
+<script type="text/javascript" src="constants.js"></script>
+<script type="text/javascript" src="giveaway.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+	var fileInput = $("fileInput");
+	fileInput.addEventListener("change", function(e) {
+		var file = fileInput.files[0];
+		if (!/text/.test(file.type)) {
+			alert("Text 형식의 파일만 업로드해야 합니다.");
+			return;
+		}
+		var reader = new FileReader();
+
+		reader.onload = function(e) {
+			var parsedEmails = csv2Json(reader.result);
+			if (validateEmails(parsedEmails)) {
+				showInputPanel(parsedEmails);
+			}
+		}
+
+		reader.readAsText(file);
+	});
+	
+	showInputMode();
+}
+</script>
+</head>
+<body id="body">
+	<div id="page-wrapper">
+		<h1>경품 추첨!!</h1>
+		<div id="fileUpload">
+			이메일 목록의 CSV 파일을 선택해 주세요: <input type="file" id="fileInput">
+		</div>
+		<div id="inputPanel" style="display:none">
+			<table><tbody id="inputTableBody">
+			<tr id="inputTableHeader">
+				<th>번호</th>
+				<th>경품명</th>
+				<th>수량</th>
+				<th>삭제?</th>
+			</tr>
+			</tbody></table>
+			<button type="button" id="addItems" onclick="onClickAddItem();">경품추가</button>
+			<button type="button" id="edit" onclick="onClickEdit();">수정</button>
+			<button type="button" id="drawAll" onclick="onClickDrawAll();">일괄추첨</button>
+			<span id="modeDisplay"></span>
+		</div>
+		<pre id="resultPanel" style="display:none"></pre>
+	</div>
+</body>
+<script type="text/javascript">
+if(!window.FileReader) {
+	var body = $("body");
+	body.innerHTML = "이 브라우저는 HTML5 의 FileReader 를 지원하지 않습니다.<br/>" +
+		"Firefox 3.6 / Chrome 14 / Opera 12.02 이상의 브라우저를 사용해 주세요.";
+	window.stop();
+}
+</script>
+</html>
