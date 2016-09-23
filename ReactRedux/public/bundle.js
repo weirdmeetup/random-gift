@@ -49,7 +49,6 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(34);
 
-	var connect = __webpack_require__(172).connect;
 	var Provider = __webpack_require__(172).Provider;
 
 	var Route = __webpack_require__(199).Route;
@@ -60,100 +59,9 @@
 
 	var store = __webpack_require__(262);
 
-	var addGift = __webpack_require__(268).addGift;
-
-	var Main = __webpack_require__(269);
-	var UploadCSV = __webpack_require__(270);
-
-	var GiftItem = React.createClass({
-	    displayName: 'GiftItem',
-
-	    render: function render() {
-	        return React.createElement(
-	            'li',
-	            null,
-	            this.props.name,
-	            ' - ',
-	            this.props.count,
-	            React.createElement('input', { type: 'button', value: '삭제' })
-	        );
-	    }
-	});
-
-	function mapStateToProps(state) {
-	    return {
-	        giftList: state.giftList
-	    };
-	}
-
-	var InputGift = connect(mapStateToProps)(React.createClass({
-	    displayName: 'InputGift',
-
-
-	    handleGiftName: function handleGiftName(e) {
-	        this.giftName = e.target.value.trim();
-	    },
-
-	    handleGiftCount: function handleGiftCount(e) {
-	        this.giftCount = parseInt(e.target.value);
-	    },
-
-	    handleSubmit: function handleSubmit(e) {
-	        e.preventDefault();
-
-	        if (!this.giftName || this.giftName === '') {
-	            return;
-	        }
-
-	        if (!this.giftCount) {
-	            this.giftCount = 1;
-	        }
-
-	        this.props.dispatch(addGift(this.giftName, this.giftCount));
-	    },
-
-	    render: function render() {
-	        var giftList = [];
-	        if (this.props.giftList) {
-	            var list = this.props.giftList.giftList;
-	            for (var i = 0; i < list.length; i++) {
-	                giftList.push(React.createElement(GiftItem, { key: i, name: list[i].name, count: list[i].count }));
-	            }
-	        }
-
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'InputGift'
-	            ),
-	            React.createElement(
-	                'form',
-	                { onSubmit: this.handleSubmit },
-	                React.createElement('input', { type: 'text', onChange: this.handleGiftName }),
-	                React.createElement('input', { type: 'number', defaultValue: '1', min: '1', onChange: this.handleGiftCount }),
-	                React.createElement('input', { type: 'submit', value: '경품 추가' })
-	            ),
-	            React.createElement(
-	                Link,
-	                { to: '/lottery' },
-	                'Go to lottery'
-	            ),
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Gift List'
-	            ),
-	            React.createElement(
-	                'ul',
-	                null,
-	                giftList
-	            )
-	        );
-	    }
-	}));
+	var Main = __webpack_require__(268);
+	var UploadCSV = __webpack_require__(269);
+	var InputGift = __webpack_require__(276);
 
 	var Lottery = React.createClass({
 	    displayName: 'Lottery',
@@ -29265,11 +29173,11 @@
 	var combineReducers = __webpack_require__(179).combineReducers;
 
 	var applicantsReducer = __webpack_require__(265);
-	var giftReducer = __webpack_require__(267);
+	var giftsReducer = __webpack_require__(267);
 
 	var reducer = combineReducers({
 	    applicants: applicantsReducer,
-	    giftList: giftReducer
+	    gifts: giftsReducer
 	});
 
 	module.exports = reducer;
@@ -29316,7 +29224,8 @@
 	var ActionTypes = {
 	    RESET: 'RESET',
 	    LOAD_APPLICANTS: 'LOAD_APPLICANTS',
-	    ADD_GIFT: 'ADD_GIFT'
+	    ADD_GIFT: 'ADD_GIFT',
+	    DELETE_GIFT: 'DELETE_GIFT'
 	};
 
 	module.exports = ActionTypes;
@@ -29329,28 +29238,57 @@
 
 	var ActionTypes = __webpack_require__(266);
 
-	var giftReducer = function giftReducer(state, action) {
+	var giftsReducer = function giftsReducer(state, action) {
+	    var newList = [];
+
 	    if (typeof state === 'undefined') {
 	        return {
-	            giftList: []
+	            list: undefined
 	        };
 	    }
 
 	    switch (action.type) {
 	        case ActionTypes.ADD_GIFT:
-	            var newGiftList = state.giftList.slice();
-	            newGiftList.push({
-	                name: action.giftName,
-	                count: action.giftCount
+	            if (state.list) {
+	                newList = state.list.slice();
+	            }
+
+	            newList.push({
+	                name: action.name,
+	                count: action.count
 	            });
 
 	            return {
-	                giftList: newGiftList
+	                list: newList
+	            };
+
+	        case ActionTypes.DELETE_GIFT:
+	            var deleted = false;
+
+	            var oldList = state.list;
+	            if (oldList) {
+	                for (var i = 0; i < oldList.length; i++) {
+	                    if (deleted) {
+	                        newList.push(oldList[i]);
+	                        continue;
+	                    }
+
+	                    if (oldList[i].name === action.name && oldList[i].count === action.count) {
+	                        deleted = true;
+	                        continue;
+	                    }
+
+	                    newList.push(oldList[i]);
+	                }
+	            }
+
+	            return {
+	                list: newList
 	            };
 
 	        case ActionTypes.RESET:
 	            return {
-	                giftList: []
+	                list: undefined
 	            };
 
 	        default:
@@ -29358,43 +29296,10 @@
 	    }
 	};
 
-	module.exports = giftReducer;
+	module.exports = giftsReducer;
 
 /***/ },
 /* 268 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var ActionTypes = __webpack_require__(266);
-
-	var Actions = {};
-
-	Actions.reset = function () {
-	    return {
-	        type: ActionTypes.RESET
-	    };
-	};
-
-	Actions.loadApplicants = function (applicants) {
-	    return {
-	        type: ActionTypes.LOAD_APPLICANTS,
-	        applicants: applicants
-	    };
-	};
-
-	Actions.addGift = function (giftName, giftCount) {
-	    return {
-	        type: ActionTypes.ADD_GIFT,
-	        giftName: giftName,
-	        giftCount: giftCount
-	    };
-	};
-
-	module.exports = Actions;
-
-/***/ },
-/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29471,7 +29376,7 @@
 	module.exports = Main;
 
 /***/ },
-/* 270 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29481,9 +29386,9 @@
 
 	var connect = __webpack_require__(172).connect;
 
-	var isEmail = __webpack_require__(271);
+	var isEmail = __webpack_require__(270);
 
-	var loadApplicants = __webpack_require__(268).loadApplicants;
+	var loadApplicants = __webpack_require__(275).loadApplicants;
 
 	var UploadCSV = React.createClass({
 	    displayName: 'UploadCSV',
@@ -29600,7 +29505,7 @@
 	module.exports = connect(mapStateToProps)(UploadCSV);
 
 /***/ },
-/* 271 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29610,19 +29515,19 @@
 	});
 	exports.default = isEmail;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(271);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(273);
+	var _merge = __webpack_require__(272);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
-	var _isByteLength = __webpack_require__(274);
+	var _isByteLength = __webpack_require__(273);
 
 	var _isByteLength2 = _interopRequireDefault(_isByteLength);
 
-	var _isFQDN = __webpack_require__(275);
+	var _isFQDN = __webpack_require__(274);
 
 	var _isFQDN2 = _interopRequireDefault(_isFQDN);
 
@@ -29691,7 +29596,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 272 */
+/* 271 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29708,7 +29613,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 273 */
+/* 272 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29731,7 +29636,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 274 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29744,7 +29649,7 @@
 
 	exports.default = isByteLength;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(271);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
@@ -29769,7 +29674,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 275 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29779,11 +29684,11 @@
 	});
 	exports.default = isFDQN;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(271);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(273);
+	var _merge = __webpack_require__(272);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
@@ -29829,6 +29734,313 @@
 	  return true;
 	}
 	module.exports = exports['default'];
+
+/***/ },
+/* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ActionTypes = __webpack_require__(266);
+
+	var Actions = {};
+
+	Actions.reset = function () {
+	    return {
+	        type: ActionTypes.RESET
+	    };
+	};
+
+	Actions.loadApplicants = function (applicants) {
+	    return {
+	        type: ActionTypes.LOAD_APPLICANTS,
+	        applicants: applicants
+	    };
+	};
+
+	Actions.addGift = function (name, count) {
+	    return {
+	        type: ActionTypes.ADD_GIFT,
+	        name: name,
+	        count: count
+	    };
+	};
+
+	Actions.deleteGift = function (name, count) {
+	    return {
+	        type: ActionTypes.DELETE_GIFT,
+	        name: name,
+	        count: count
+	    };
+	};
+
+	module.exports = Actions;
+
+/***/ },
+/* 276 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var Link = __webpack_require__(199).Link;
+
+	var connect = __webpack_require__(172).connect;
+
+	var addGift = __webpack_require__(275).addGift;
+	var deleteGift = __webpack_require__(275).deleteGift;
+
+	var extend = __webpack_require__(277);
+
+	var GiftItem = React.createClass({
+	    displayName: 'GiftItem',
+
+	    handleDelete: function handleDelete(e) {
+	        e.preventDefault();
+
+	        this.props.handleDelete(this.props.name, this.props.count);
+	    },
+
+	    render: function render() {
+	        return React.createElement(
+	            'li',
+	            null,
+	            React.createElement(
+	                'b',
+	                null,
+	                this.props.name
+	            ),
+	            ' ',
+	            this.props.count,
+	            ' 개',
+	            React.createElement('input', { type: 'button', value: '삭제', onClick: this.handleDelete })
+	        );
+	    }
+	});
+
+	var InputGift = React.createClass({
+	    displayName: 'InputGift',
+
+	    getInitialState: function getInitialState() {
+	        return {
+	            giftName: '',
+	            giftCount: 1
+	        };
+	    },
+
+	    handleDeleteGift: function handleDeleteGift(name, count) {
+	        this.props.dispatch(deleteGift(name, count));
+	    },
+
+	    handleGiftName: function handleGiftName(e) {
+	        var name = e.target.value.trim();
+	        this.setState(extend({}, this.state, { giftName: name }));
+	    },
+
+	    handleGiftCount: function handleGiftCount(e) {
+	        var count = parseInt(e.target.value);
+	        this.setState(extend({}, this.state, { giftCount: count }));
+	    },
+
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+
+	        if (!this.state.giftName || this.state.giftName === '') {
+	            return;
+	        }
+
+	        this.props.dispatch(addGift(this.state.giftName, this.state.giftCount));
+
+	        this.setState({
+	            giftName: '',
+	            giftCount: 1
+	        });
+	    },
+
+	    render: function render() {
+	        var giftsAdded = false;
+	        var gifts = [];
+	        if (this.props.gifts.list && this.props.gifts.list.length > 0) {
+	            giftsAdded = true;
+	            var list = this.props.gifts.list;
+	            for (var i = 0; i < list.length; i++) {
+	                gifts.push(React.createElement(GiftItem, { key: i, name: list[i].name, count: list[i].count, handleDelete: this.handleDeleteGift }));
+	            }
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 입력'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '경품의 이름과 수량을 입력 후, ',
+	                React.createElement(
+	                    'b',
+	                    null,
+	                    '경품 추가'
+	                ),
+	                '를 누르면 경품이 추가됩니다.'
+	            ),
+	            React.createElement(
+	                'form',
+	                { onSubmit: this.handleSubmit },
+	                React.createElement(
+	                    'ul',
+	                    null,
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        '경품 이름: ',
+	                        React.createElement('input', { type: 'text', onChange: this.handleGiftName, value: this.state.giftName })
+	                    ),
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        '경품 개수: ',
+	                        React.createElement('input', { type: 'number', min: '1', onChange: this.handleGiftCount, value: this.state.giftCount })
+	                    ),
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement('input', { type: 'submit', value: '경품 추가' })
+	                    )
+	                )
+	            ),
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 목록'
+	            ),
+	            !giftsAdded && React.createElement(
+	                'p',
+	                null,
+	                '입력된 경품이 없습니다. 경품을 추가해주세요.'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                gifts
+	            ),
+	            giftsAdded && React.createElement(
+	                'p',
+	                null,
+	                React.createElement(
+	                    Link,
+	                    { to: '/lottery' },
+	                    '여기'
+	                ),
+	                '를 눌러 경품 추첨으로 이동합니다.'
+	            )
+	        );
+	    }
+	});
+
+	function mapStateToProps(state) {
+	    return {
+	        gifts: state.gifts
+	    };
+	}
+
+	module.exports = connect(mapStateToProps)(InputGift);
+
+/***/ },
+/* 277 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var hasOwn = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+
+	var isArray = function isArray(arr) {
+		if (typeof Array.isArray === 'function') {
+			return Array.isArray(arr);
+		}
+
+		return toStr.call(arr) === '[object Array]';
+	};
+
+	var isPlainObject = function isPlainObject(obj) {
+		if (!obj || toStr.call(obj) !== '[object Object]') {
+			return false;
+		}
+
+		var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+		var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+		// Not own constructor property must be Object
+		if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+			return false;
+		}
+
+		// Own properties are enumerated firstly, so to speed up,
+		// if last one is own, then all properties are own.
+		var key;
+		for (key in obj) {/**/}
+
+		return typeof key === 'undefined' || hasOwn.call(obj, key);
+	};
+
+	module.exports = function extend() {
+		var options, name, src, copy, copyIsArray, clone,
+			target = arguments[0],
+			i = 1,
+			length = arguments.length,
+			deep = false;
+
+		// Handle a deep copy situation
+		if (typeof target === 'boolean') {
+			deep = target;
+			target = arguments[1] || {};
+			// skip the boolean and the target
+			i = 2;
+		} else if ((typeof target !== 'object' && typeof target !== 'function') || target == null) {
+			target = {};
+		}
+
+		for (; i < length; ++i) {
+			options = arguments[i];
+			// Only deal with non-null/undefined values
+			if (options != null) {
+				// Extend the base object
+				for (name in options) {
+					src = target[name];
+					copy = options[name];
+
+					// Prevent never-ending loop
+					if (target !== copy) {
+						// Recurse if we're merging plain objects or arrays
+						if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+							if (copyIsArray) {
+								copyIsArray = false;
+								clone = src && isArray(src) ? src : [];
+							} else {
+								clone = src && isPlainObject(src) ? src : {};
+							}
+
+							// Never move original objects, clone them
+							target[name] = extend(deep, clone, copy);
+
+						// Don't bring in undefined values
+						} else if (typeof copy !== 'undefined') {
+							target[name] = copy;
+						}
+					}
+				}
+			}
+		}
+
+		// Return the modified object
+		return target;
+	};
+
+
 
 /***/ }
 /******/ ]);

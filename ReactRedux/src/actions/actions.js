@@ -16,11 +16,19 @@ Actions.loadApplicants = function(applicants) {
     };
 };
 
-Actions.addGift = function(giftName, giftCount) {
+Actions.addGift = function(name, count) {
     return {
         type: ActionTypes.ADD_GIFT,
-        giftName: giftName,
-        giftCount: giftCount
+        name: name,
+        count: count
+    };
+};
+
+Actions.deleteGift = function(name, count) {
+    return {
+        type: ActionTypes.DELETE_GIFT,
+        name: name,
+        count: count
     };
 };
 

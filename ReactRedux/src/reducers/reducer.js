@@ -1,11 +1,11 @@
 var combineReducers = require('redux').combineReducers;
 
 var applicantsReducer = require('./applicantsReducer');
-var giftReducer = require('./giftReducer');
+var giftsReducer = require('./giftsReducer');
 
 var reducer = combineReducers({
     applicants: applicantsReducer,
-    giftList: giftReducer
+    gifts: giftsReducer
 });
 
 module.exports = reducer;
