@@ -1,10 +1,10 @@
 var combineReducers = require('redux').combineReducers;
 
-var emailListReducer = require('./emailListReducer');
+var applicantsReducer = require('./applicantsReducer');
 var giftReducer = require('./giftReducer');
 
 var reducer = combineReducers({
-    emailList: emailListReducer,
+    applicants: applicantsReducer,
     giftList: giftReducer
 });
 

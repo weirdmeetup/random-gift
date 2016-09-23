@@ -10,73 +10,31 @@ var HashHistory = require('react-router').hashHistory;
 var IndexRoute = require('react-router').IndexRoute;
 var Link = require('react-router').Link;
 
-var isEmail = require('validator/lib/isEmail');
-
 var store = require('./store');
 
-var loadEmailList = require('./actions/actions').loadEmailList;
 var addGift = require('./actions/actions').addGift;
 
-var Main = React.createClass({
+var Main = require('./containers/Main');
+var UploadCSV = require('./containers/UploadCSV');
+
+var GiftItem = React.createClass({
     render: function() {
         return (
-            <div>
-                <h1>Main</h1>
-                <Link to="/uploadCSV">Upload CSV</Link>
-            </div>
+            <li>
+                { this.props.name } - { this.props.count }
+                <input type="button" value="삭제" />
+            </li>
         );
     }
 });
 
-var UploadCSV = connect()(React.createClass({
-    handleFile: function(e) {
-        this.file = e.target.files[0];
-    },
+function mapStateToProps(state) {
+    return {
+        giftList: state.giftList
+    };
+}
 
-    handleSubmit: function(e) {
-        e.preventDefault();
-
-        if (!this.file) {
-            console.log('file is not selected.');
-            return;
-        }
-
-        var reader = new FileReader();
-        var dispatch = this.props.dispatch;
-
-        reader.onload = function() {
-            var array = [];
-
-            // By lines
-            var lines = this.result.split('\n');
-            for(var line = 0; line < lines.length; line++){
-                if (isEmail(lines[line])) {
-                    array.push(lines[line]);
-                } else {
-                    console.log('"' + lines[line] + '" is not valid email.');
-                }
-            }
-
-            dispatch(loadEmailList(array));
-        };
-        reader.readAsText(this.file);
-    },
-
-    render: function() {
-        return (
-            <div>
-                <h1>Main component</h1>
-                <form onSubmit={ this.handleSubmit }>
-                    <input type="file" name="file" id="file" onChange={ this.handleFile }/>
-                    <input type="submit" value="올리기" />
-                </form>
-                <Link to="/inputGift">Input Gift</Link>
-            </div>
-        );
-    }
-}));
-
-var InputGift = connect()(React.createClass({
+var InputGift = connect(mapStateToProps)(React.createClass({
 
     handleGiftName: function(e) {
         this.giftName = e.target.value.trim();
@@ -101,6 +59,14 @@ var InputGift = connect()(React.createClass({
     },
 
     render: function() {
+        var giftList = [];
+        if (this.props.giftList) {
+            var list = this.props.giftList.giftList;
+            for (var i = 0; i < list.length; i++) {
+                giftList.push( <GiftItem key={ i } name={ list[i].name } count={ list[i].count } /> );
+            }
+        }
+
         return (
             <div>
                 <h1>InputGift</h1>
@@ -113,14 +79,7 @@ var InputGift = connect()(React.createClass({
 
                 <h1>Gift List</h1>
                 <ul>
-                    <li>
-                        선물1 2개
-                        <input type="button" value="삭제" />
-                    </li>
-                    <li>
-                        선물2 2개
-                        <input type="button" value="삭제" />
-                    </li>
+                    { giftList }
                 </ul>
 
             </div>

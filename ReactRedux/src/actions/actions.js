@@ -9,10 +9,10 @@ Actions.reset = function() {
     };
 };
 
-Actions.loadEmailList = function(emailList) {
+Actions.loadApplicants = function(applicants) {
     return {
-        type: ActionTypes.LOAD_EMAIL_LIST,
-        emailList: emailList
+        type: ActionTypes.LOAD_APPLICANTS,
+        applicants: applicants
     };
 };
 

@@ -1,21 +1,21 @@
 var ActionTypes = require('../constants/actionTypes');
 
-var emailListReducer = function(state, action) {
+var applicantsReducer = function(state, action) {
     if (typeof state === 'undefined') {
         return {
-            emailList: []
+            list: undefined
         };
     }
 
     switch (action.type) {
-    case ActionTypes.LOAD_EMAIL_LIST:
+    case ActionTypes.LOAD_APPLICANTS:
         return {
-            emailList: action.emailList
+            list: action.applicants
         };
 
     case ActionTypes.RESET:
         return {
-            emailList: []
+            list: undefined
         };
 
     default:
@@ -23,4 +23,4 @@ var emailListReducer = function(state, action) {
     }
 };
 
-module.exports = emailListReducer;
+module.exports = applicantsReducer;

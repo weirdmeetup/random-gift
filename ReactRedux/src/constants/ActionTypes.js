@@ -1,6 +1,6 @@
 var ActionTypes = {
     RESET: 'RESET',
-    LOAD_EMAIL_LIST: 'LOAD_EMAIL_LIST',
+    LOAD_APPLICANTS: 'LOAD_APPLICANTS',
     ADD_GIFT: 'ADD_GIFT'
 };
 

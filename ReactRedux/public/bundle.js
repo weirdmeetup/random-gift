@@ -58,95 +58,35 @@
 	var IndexRoute = __webpack_require__(199).IndexRoute;
 	var Link = __webpack_require__(199).Link;
 
-	var isEmail = __webpack_require__(262);
+	var store = __webpack_require__(262);
 
-	var store = __webpack_require__(267);
+	var addGift = __webpack_require__(268).addGift;
 
-	var loadEmailList = __webpack_require__(273).loadEmailList;
-	var addGift = __webpack_require__(273).addGift;
+	var Main = __webpack_require__(269);
+	var UploadCSV = __webpack_require__(270);
 
-	var Main = React.createClass({
-	    displayName: 'Main',
+	var GiftItem = React.createClass({
+	    displayName: 'GiftItem',
 
 	    render: function render() {
 	        return React.createElement(
-	            'div',
+	            'li',
 	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Main'
-	            ),
-	            React.createElement(
-	                Link,
-	                { to: '/uploadCSV' },
-	                'Upload CSV'
-	            )
+	            this.props.name,
+	            ' - ',
+	            this.props.count,
+	            React.createElement('input', { type: 'button', value: '삭제' })
 	        );
 	    }
 	});
 
-	var UploadCSV = connect()(React.createClass({
-	    displayName: 'UploadCSV',
+	function mapStateToProps(state) {
+	    return {
+	        giftList: state.giftList
+	    };
+	}
 
-	    handleFile: function handleFile(e) {
-	        this.file = e.target.files[0];
-	    },
-
-	    handleSubmit: function handleSubmit(e) {
-	        e.preventDefault();
-
-	        if (!this.file) {
-	            console.log('file is not selected.');
-	            return;
-	        }
-
-	        var reader = new FileReader();
-	        var dispatch = this.props.dispatch;
-
-	        reader.onload = function () {
-	            var array = [];
-
-	            // By lines
-	            var lines = this.result.split('\n');
-	            for (var line = 0; line < lines.length; line++) {
-	                if (isEmail(lines[line])) {
-	                    array.push(lines[line]);
-	                } else {
-	                    console.log('"' + lines[line] + '" is not valid email.');
-	                }
-	            }
-
-	            dispatch(loadEmailList(array));
-	        };
-	        reader.readAsText(this.file);
-	    },
-
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Main component'
-	            ),
-	            React.createElement(
-	                'form',
-	                { onSubmit: this.handleSubmit },
-	                React.createElement('input', { type: 'file', name: 'file', id: 'file', onChange: this.handleFile }),
-	                React.createElement('input', { type: 'submit', value: '올리기' })
-	            ),
-	            React.createElement(
-	                Link,
-	                { to: '/inputGift' },
-	                'Input Gift'
-	            )
-	        );
-	    }
-	}));
-
-	var InputGift = connect()(React.createClass({
+	var InputGift = connect(mapStateToProps)(React.createClass({
 	    displayName: 'InputGift',
 
 
@@ -173,6 +113,14 @@
 	    },
 
 	    render: function render() {
+	        var giftList = [];
+	        if (this.props.giftList) {
+	            var list = this.props.giftList.giftList;
+	            for (var i = 0; i < list.length; i++) {
+	                giftList.push(React.createElement(GiftItem, { key: i, name: list[i].name, count: list[i].count }));
+	            }
+	        }
+
 	        return React.createElement(
 	            'div',
 	            null,
@@ -201,18 +149,7 @@
 	            React.createElement(
 	                'ul',
 	                null,
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물1 2개',
-	                    React.createElement('input', { type: 'button', value: '삭제' })
-	                ),
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물2 2개',
-	                    React.createElement('input', { type: 'button', value: '삭제' })
-	                )
+	                giftList
 	            )
 	        );
 	    }
@@ -29073,243 +29010,12 @@
 
 	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = isEmail;
-
-	var _assertString = __webpack_require__(263);
-
-	var _assertString2 = _interopRequireDefault(_assertString);
-
-	var _merge = __webpack_require__(264);
-
-	var _merge2 = _interopRequireDefault(_merge);
-
-	var _isByteLength = __webpack_require__(265);
-
-	var _isByteLength2 = _interopRequireDefault(_isByteLength);
-
-	var _isFQDN = __webpack_require__(266);
-
-	var _isFQDN2 = _interopRequireDefault(_isFQDN);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var default_email_options = {
-	  allow_display_name: false,
-	  allow_utf8_local_part: true,
-	  require_tld: true
-	};
-
-	/* eslint-disable max-len */
-	/* eslint-disable no-control-regex */
-	var displayName = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\s]*<(.+)>$/i;
-	var emailUserPart = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~]+$/i;
-	var quotedEmailUser = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f]))*$/i;
-	var emailUserUtf8Part = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+$/i;
-	var quotedEmailUserUtf8 = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*$/i;
-	/* eslint-enable max-len */
-	/* eslint-enable no-control-regex */
-
-	function isEmail(str, options) {
-	  (0, _assertString2.default)(str);
-	  options = (0, _merge2.default)(options, default_email_options);
-
-	  if (options.allow_display_name) {
-	    var display_email = str.match(displayName);
-	    if (display_email) {
-	      str = display_email[1];
-	    }
-	  }
-
-	  var parts = str.split('@');
-	  var domain = parts.pop();
-	  var user = parts.join('@');
-
-	  var lower_domain = domain.toLowerCase();
-	  if (lower_domain === 'gmail.com' || lower_domain === 'googlemail.com') {
-	    user = user.replace(/\./g, '').toLowerCase();
-	  }
-
-	  if (!(0, _isByteLength2.default)(user, { max: 64 }) || !(0, _isByteLength2.default)(domain, { max: 256 })) {
-	    return false;
-	  }
-
-	  if (!(0, _isFQDN2.default)(domain, { require_tld: options.require_tld })) {
-	    return false;
-	  }
-
-	  if (user[0] === '"') {
-	    user = user.slice(1, user.length - 1);
-	    return options.allow_utf8_local_part ? quotedEmailUserUtf8.test(user) : quotedEmailUser.test(user);
-	  }
-
-	  var pattern = options.allow_utf8_local_part ? emailUserUtf8Part : emailUserPart;
-
-	  var user_parts = user.split('.');
-	  for (var i = 0; i < user_parts.length; i++) {
-	    if (!pattern.test(user_parts[i])) {
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 263 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = assertString;
-	function assertString(input) {
-	  if (typeof input !== 'string') {
-	    throw new TypeError('This library (validator.js) validates strings only');
-	  }
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 264 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = merge;
-	function merge() {
-	  var obj = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	  var defaults = arguments[1];
-
-	  for (var key in defaults) {
-	    if (typeof obj[key] === 'undefined') {
-	      obj[key] = defaults[key];
-	    }
-	  }
-	  return obj;
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 265 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	exports.default = isByteLength;
-
-	var _assertString = __webpack_require__(263);
-
-	var _assertString2 = _interopRequireDefault(_assertString);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/* eslint-disable prefer-rest-params */
-	function isByteLength(str, options) {
-	  (0, _assertString2.default)(str);
-	  var min = void 0;
-	  var max = void 0;
-	  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
-	    min = options.min || 0;
-	    max = options.max;
-	  } else {
-	    // backwards compatibility: isByteLength(str, min [, max])
-	    min = arguments[1];
-	    max = arguments[2];
-	  }
-	  var len = encodeURI(str).split(/%..|./).length - 1;
-	  return len >= min && (typeof max === 'undefined' || len <= max);
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 266 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = isFDQN;
-
-	var _assertString = __webpack_require__(263);
-
-	var _assertString2 = _interopRequireDefault(_assertString);
-
-	var _merge = __webpack_require__(264);
-
-	var _merge2 = _interopRequireDefault(_merge);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var default_fqdn_options = {
-	  require_tld: true,
-	  allow_underscores: false,
-	  allow_trailing_dot: false
-	};
-
-	function isFDQN(str, options) {
-	  (0, _assertString2.default)(str);
-	  options = (0, _merge2.default)(options, default_fqdn_options);
-
-	  /* Remove the optional trailing dot before checking validity */
-	  if (options.allow_trailing_dot && str[str.length - 1] === '.') {
-	    str = str.substring(0, str.length - 1);
-	  }
-	  var parts = str.split('.');
-	  if (options.require_tld) {
-	    var tld = parts.pop();
-	    if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
-	      return false;
-	    }
-	  }
-	  for (var part, i = 0; i < parts.length; i++) {
-	    part = parts[i];
-	    if (options.allow_underscores) {
-	      part = part.replace(/_/g, '');
-	    }
-	    if (!/^[a-z\u00a1-\uffff0-9-]+$/i.test(part)) {
-	      return false;
-	    }
-	    if (/[\uff01-\uff5e]/.test(part)) {
-	      // disallow full-width chars
-	      return false;
-	    }
-	    if (part[0] === '-' || part[part.length - 1] === '-') {
-	      return false;
-	    }
-	  }
-	  return true;
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 267 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var createStore = __webpack_require__(179).createStore;
 	var applyMiddleware = __webpack_require__(179).applyMiddleware;
 
-	var createLogger = __webpack_require__(268);
+	var createLogger = __webpack_require__(263);
 
-	var reducer = __webpack_require__(269);
+	var reducer = __webpack_require__(264);
 
 	var logger = createLogger();
 
@@ -29318,7 +29024,7 @@
 	module.exports = store;
 
 /***/ },
-/* 268 */
+/* 263 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -29551,47 +29257,47 @@
 	module.exports = createLogger;
 
 /***/ },
-/* 269 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var combineReducers = __webpack_require__(179).combineReducers;
 
-	var emailListReducer = __webpack_require__(270);
-	var giftReducer = __webpack_require__(272);
+	var applicantsReducer = __webpack_require__(265);
+	var giftReducer = __webpack_require__(267);
 
 	var reducer = combineReducers({
-	    emailList: emailListReducer,
+	    applicants: applicantsReducer,
 	    giftList: giftReducer
 	});
 
 	module.exports = reducer;
 
 /***/ },
-/* 270 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ActionTypes = __webpack_require__(271);
+	var ActionTypes = __webpack_require__(266);
 
-	var emailListReducer = function emailListReducer(state, action) {
+	var applicantsReducer = function applicantsReducer(state, action) {
 	    if (typeof state === 'undefined') {
 	        return {
-	            emailList: []
+	            list: undefined
 	        };
 	    }
 
 	    switch (action.type) {
-	        case ActionTypes.LOAD_EMAIL_LIST:
+	        case ActionTypes.LOAD_APPLICANTS:
 	            return {
-	                emailList: action.emailList
+	                list: action.applicants
 	            };
 
 	        case ActionTypes.RESET:
 	            return {
-	                emailList: []
+	                list: undefined
 	            };
 
 	        default:
@@ -29599,29 +29305,29 @@
 	    }
 	};
 
-	module.exports = emailListReducer;
+	module.exports = applicantsReducer;
 
 /***/ },
-/* 271 */
+/* 266 */
 /***/ function(module, exports) {
 
 	'use strict';
 
 	var ActionTypes = {
 	    RESET: 'RESET',
-	    LOAD_EMAIL_LIST: 'LOAD_EMAIL_LIST',
+	    LOAD_APPLICANTS: 'LOAD_APPLICANTS',
 	    ADD_GIFT: 'ADD_GIFT'
 	};
 
 	module.exports = ActionTypes;
 
 /***/ },
-/* 272 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ActionTypes = __webpack_require__(271);
+	var ActionTypes = __webpack_require__(266);
 
 	var giftReducer = function giftReducer(state, action) {
 	    if (typeof state === 'undefined') {
@@ -29655,12 +29361,12 @@
 	module.exports = giftReducer;
 
 /***/ },
-/* 273 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ActionTypes = __webpack_require__(271);
+	var ActionTypes = __webpack_require__(266);
 
 	var Actions = {};
 
@@ -29670,10 +29376,10 @@
 	    };
 	};
 
-	Actions.loadEmailList = function (emailList) {
+	Actions.loadApplicants = function (applicants) {
 	    return {
-	        type: ActionTypes.LOAD_EMAIL_LIST,
-	        emailList: emailList
+	        type: ActionTypes.LOAD_APPLICANTS,
+	        applicants: applicants
 	    };
 	};
 
@@ -29686,6 +29392,443 @@
 	};
 
 	module.exports = Actions;
+
+/***/ },
+/* 269 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var Link = __webpack_require__(199).Link;
+
+	var Main = React.createClass({
+	    displayName: 'Main',
+
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '이모콘 경품 추첨'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '이모콘에서 경품 추첨을 위해 사용하기 위해 작성된 소프트웨어입니다.'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '다음 순서로 경품 추첨을 하게 됩니다.'
+	            ),
+	            React.createElement(
+	                'ol',
+	                null,
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '참가자 목록이 담긴 CSV 파일을 읽어들입니다.'
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '경품을 입력합니다.'
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '경품별로 추첨을 합니다.'
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    '당첨자들을 확인합니다.'
+	                )
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '사용해주셔서 감사합니다.'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '경품 추첨을 시작해봅니다. ',
+	                React.createElement(
+	                    Link,
+	                    { to: '/uploadCSV' },
+	                    '여기를'
+	                ),
+	                ' 눌러주세요.'
+	            )
+	        );
+	    }
+	});
+
+	module.exports = Main;
+
+/***/ },
+/* 270 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var Link = __webpack_require__(199).Link;
+
+	var connect = __webpack_require__(172).connect;
+
+	var isEmail = __webpack_require__(271);
+
+	var loadApplicants = __webpack_require__(268).loadApplicants;
+
+	var UploadCSV = React.createClass({
+	    displayName: 'UploadCSV',
+
+	    handleFile: function handleFile(e) {
+	        this.file = e.target.files[0];
+	    },
+
+	    handleSubmit: function handleSubmit(e) {
+	        e.preventDefault();
+
+	        if (!this.file) {
+	            console.log('file is not selected.');
+	            return;
+	        }
+
+	        var reader = new FileReader();
+	        var dispatch = this.props.dispatch;
+
+	        reader.onload = function () {
+	            var array = [];
+
+	            // By lines
+	            var lines = this.result.split('\n');
+	            for (var line = 0; line < lines.length; line++) {
+	                if (isEmail(lines[line])) {
+	                    array.push(lines[line]);
+	                } else {
+	                    console.log('"' + lines[line] + '" is not valid email.');
+	                }
+	            }
+
+	            dispatch(loadApplicants(array));
+	        };
+	        reader.readAsText(this.file);
+	    },
+
+	    render: function render() {
+	        var loaded = false;
+	        var loadedStatus = React.createElement(
+	            'p',
+	            null,
+	            '아직 응모자 명단이 입력되지 않았습니다.'
+	        );
+
+	        if (this.props.applicants.list) {
+	            loaded = true;
+	            loadedStatus = React.createElement(
+	                'p',
+	                null,
+	                ' 응모자 ',
+	                React.createElement(
+	                    'b',
+	                    null,
+	                    this.props.applicants.list.length
+	                ),
+	                ' 명이 입력되었습니다. '
+	            );
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '응모자 입력'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '응모자 명단을 입력합니다. ',
+	                React.createElement(
+	                    'b',
+	                    null,
+	                    '파일 선택'
+	                ),
+	                '을 눌러 응모자 명단이 들어있는 CSV파일을 선택합니다. ',
+	                React.createElement(
+	                    'b',
+	                    null,
+	                    '올리기'
+	                ),
+	                ' 버튼을 눌러 응모자 명단을 입력합니다.'
+	            ),
+	            React.createElement(
+	                'form',
+	                { onSubmit: this.handleSubmit },
+	                React.createElement('input', { type: 'file', name: 'file', id: 'file', onChange: this.handleFile }),
+	                React.createElement('input', { type: 'submit', value: '올리기' })
+	            ),
+	            loadedStatus,
+	            loaded && React.createElement(
+	                'p',
+	                null,
+	                '경품을 입력하려면 ',
+	                React.createElement(
+	                    Link,
+	                    { to: '/inputGift' },
+	                    '여기'
+	                ),
+	                '를 눌러주세요.'
+	            )
+	        );
+	    }
+	});
+
+	function mapStateToProps(state) {
+	    return {
+	        applicants: state.applicants
+	    };
+	}
+
+	module.exports = connect(mapStateToProps)(UploadCSV);
+
+/***/ },
+/* 271 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isEmail;
+
+	var _assertString = __webpack_require__(272);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	var _merge = __webpack_require__(273);
+
+	var _merge2 = _interopRequireDefault(_merge);
+
+	var _isByteLength = __webpack_require__(274);
+
+	var _isByteLength2 = _interopRequireDefault(_isByteLength);
+
+	var _isFQDN = __webpack_require__(275);
+
+	var _isFQDN2 = _interopRequireDefault(_isFQDN);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var default_email_options = {
+	  allow_display_name: false,
+	  allow_utf8_local_part: true,
+	  require_tld: true
+	};
+
+	/* eslint-disable max-len */
+	/* eslint-disable no-control-regex */
+	var displayName = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\s]*<(.+)>$/i;
+	var emailUserPart = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~]+$/i;
+	var quotedEmailUser = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f]))*$/i;
+	var emailUserUtf8Part = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+$/i;
+	var quotedEmailUserUtf8 = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*$/i;
+	/* eslint-enable max-len */
+	/* eslint-enable no-control-regex */
+
+	function isEmail(str, options) {
+	  (0, _assertString2.default)(str);
+	  options = (0, _merge2.default)(options, default_email_options);
+
+	  if (options.allow_display_name) {
+	    var display_email = str.match(displayName);
+	    if (display_email) {
+	      str = display_email[1];
+	    }
+	  }
+
+	  var parts = str.split('@');
+	  var domain = parts.pop();
+	  var user = parts.join('@');
+
+	  var lower_domain = domain.toLowerCase();
+	  if (lower_domain === 'gmail.com' || lower_domain === 'googlemail.com') {
+	    user = user.replace(/\./g, '').toLowerCase();
+	  }
+
+	  if (!(0, _isByteLength2.default)(user, { max: 64 }) || !(0, _isByteLength2.default)(domain, { max: 256 })) {
+	    return false;
+	  }
+
+	  if (!(0, _isFQDN2.default)(domain, { require_tld: options.require_tld })) {
+	    return false;
+	  }
+
+	  if (user[0] === '"') {
+	    user = user.slice(1, user.length - 1);
+	    return options.allow_utf8_local_part ? quotedEmailUserUtf8.test(user) : quotedEmailUser.test(user);
+	  }
+
+	  var pattern = options.allow_utf8_local_part ? emailUserUtf8Part : emailUserPart;
+
+	  var user_parts = user.split('.');
+	  for (var i = 0; i < user_parts.length; i++) {
+	    if (!pattern.test(user_parts[i])) {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 272 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = assertString;
+	function assertString(input) {
+	  if (typeof input !== 'string') {
+	    throw new TypeError('This library (validator.js) validates strings only');
+	  }
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 273 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = merge;
+	function merge() {
+	  var obj = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	  var defaults = arguments[1];
+
+	  for (var key in defaults) {
+	    if (typeof obj[key] === 'undefined') {
+	      obj[key] = defaults[key];
+	    }
+	  }
+	  return obj;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 274 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	exports.default = isByteLength;
+
+	var _assertString = __webpack_require__(272);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/* eslint-disable prefer-rest-params */
+	function isByteLength(str, options) {
+	  (0, _assertString2.default)(str);
+	  var min = void 0;
+	  var max = void 0;
+	  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
+	    min = options.min || 0;
+	    max = options.max;
+	  } else {
+	    // backwards compatibility: isByteLength(str, min [, max])
+	    min = arguments[1];
+	    max = arguments[2];
+	  }
+	  var len = encodeURI(str).split(/%..|./).length - 1;
+	  return len >= min && (typeof max === 'undefined' || len <= max);
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isFDQN;
+
+	var _assertString = __webpack_require__(272);
+
+	var _assertString2 = _interopRequireDefault(_assertString);
+
+	var _merge = __webpack_require__(273);
+
+	var _merge2 = _interopRequireDefault(_merge);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var default_fqdn_options = {
+	  require_tld: true,
+	  allow_underscores: false,
+	  allow_trailing_dot: false
+	};
+
+	function isFDQN(str, options) {
+	  (0, _assertString2.default)(str);
+	  options = (0, _merge2.default)(options, default_fqdn_options);
+
+	  /* Remove the optional trailing dot before checking validity */
+	  if (options.allow_trailing_dot && str[str.length - 1] === '.') {
+	    str = str.substring(0, str.length - 1);
+	  }
+	  var parts = str.split('.');
+	  if (options.require_tld) {
+	    var tld = parts.pop();
+	    if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
+	      return false;
+	    }
+	  }
+	  for (var part, i = 0; i < parts.length; i++) {
+	    part = parts[i];
+	    if (options.allow_underscores) {
+	      part = part.replace(/_/g, '');
+	    }
+	    if (!/^[a-z\u00a1-\uffff0-9-]+$/i.test(part)) {
+	      return false;
+	    }
+	    if (/[\uff01-\uff5e]/.test(part)) {
+	      // disallow full-width chars
+	      return false;
+	    }
+	    if (part[0] === '-' || part[part.length - 1] === '-') {
+	      return false;
+	    }
+	  }
+	  return true;
+	}
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);
