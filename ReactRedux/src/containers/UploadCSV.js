@@ -30,7 +30,10 @@ var UploadCSV = React.createClass({
             var lines = this.result.split('\n');
             for(var line = 0; line < lines.length; line++){
                 if (isEmail(lines[line])) {
-                    array.push(lines[line]);
+                    array.push({
+                        email: lines[line],
+                        win: false
+                    });
                 } else {
                     console.log('"' + lines[line] + '" is not valid email.');
                 }

@@ -59,55 +59,10 @@
 
 	var store = __webpack_require__(262);
 
-	var Main = __webpack_require__(268);
-	var UploadCSV = __webpack_require__(269);
-	var InputGift = __webpack_require__(276);
-
-	var Lottery = React.createClass({
-	    displayName: 'Lottery',
-
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Lottery'
-	            ),
-	            React.createElement(
-	                Link,
-	                { to: '/winner' },
-	                'Go to winner'
-	            ),
-	            React.createElement(
-	                'h1',
-	                null,
-	                '경품 목록'
-	            ),
-	            React.createElement(
-	                'ul',
-	                null,
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물 1 / 2 - ',
-	                    React.createElement(
-	                        'b',
-	                        null,
-	                        'a@gmail.com'
-	                    )
-	                ),
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물 2 / 2 - ',
-	                    React.createElement('input', { type: 'button', value: '추첨' })
-	                )
-	            )
-	        );
-	    }
-	});
+	var Main = __webpack_require__(269);
+	var UploadCSV = __webpack_require__(270);
+	var InputGift = __webpack_require__(277);
+	var Lottery = __webpack_require__(279);
 
 	var Winner = React.createClass({
 	    displayName: 'Winner',
@@ -29174,10 +29129,12 @@
 
 	var applicantsReducer = __webpack_require__(265);
 	var giftsReducer = __webpack_require__(267);
+	var lotteryReducer = __webpack_require__(268);
 
 	var reducer = combineReducers({
 	    applicants: applicantsReducer,
-	    gifts: giftsReducer
+	    gifts: giftsReducer,
+	    lottery: lotteryReducer
 	});
 
 	module.exports = reducer;
@@ -29208,6 +29165,14 @@
 	                list: undefined
 	            };
 
+	        case ActionTypes.SET_WINNER:
+	            var newList = state.list.slice();
+	            newList[action.applicantIndex].win = true;
+
+	            return {
+	                list: newList
+	            };
+
 	        default:
 	            return state;
 	    }
@@ -29223,9 +29188,15 @@
 
 	var ActionTypes = {
 	    RESET: 'RESET',
+
 	    LOAD_APPLICANTS: 'LOAD_APPLICANTS',
+
 	    ADD_GIFT: 'ADD_GIFT',
-	    DELETE_GIFT: 'DELETE_GIFT'
+	    DELETE_GIFT: 'DELETE_GIFT',
+
+	    INITIALIZE_LOTTERY: 'INITIALIZE_LOTTERY',
+	    START_LOTTERY: 'START_LOTTERY',
+	    SET_WINNER: 'SET_WINNER'
 	};
 
 	module.exports = ActionTypes;
@@ -29304,6 +29275,89 @@
 
 	'use strict';
 
+	var ActionTypes = __webpack_require__(266);
+
+	var lotteryReducer = function lotteryReducer(state, action) {
+	    var i = 0;
+	    var giftList = [];
+
+	    if (typeof state === 'undefined') {
+	        return {
+	            giftList: undefined,
+	            currentGiftIndex: undefined,
+	            isDoing: false,
+	            lotteryDone: false
+	        };
+	    }
+
+	    switch (action.type) {
+	        case ActionTypes.INITIALIZE_LOTTERY:
+	            for (i = 0; i < action.giftList.length; i++) {
+	                var gift = action.giftList[i];
+	                giftList.push({
+	                    name: gift.name,
+	                    count: gift.count,
+	                    done: false,
+	                    winnerList: []
+	                });
+	            }
+
+	            return {
+	                giftList: giftList,
+	                currentGiftIndex: undefined,
+	                isDoing: false,
+	                lotteryDone: false
+	            };
+
+	        case ActionTypes.START_LOTTERY:
+	            return {
+	                giftList: state.giftList,
+	                currentGiftIndex: action.giftIndex,
+	                isDoing: true,
+	                lotteryDone: false
+	            };
+
+	        case ActionTypes.SET_WINNER:
+	            giftList = state.giftList.slice();
+
+	            giftList[state.currentGiftIndex].winnerList.push(action.email);
+
+	            var lotteryDone = false;
+	            var isDoing = true;
+	            if (giftList[state.currentGiftIndex].winnerList.length == giftList[state.currentGiftIndex].count) {
+	                giftList[state.currentGiftIndex].done = true;
+	                isDoing = false;
+
+	                var allDone = true;
+	                for (i = 0; i < giftList.length; i++) {
+	                    if (!giftList[i].done) {
+	                        allDone = false;
+	                        break;
+	                    }
+	                }
+	                lotteryDone = allDone;
+	            }
+
+	            return {
+	                giftList: giftList,
+	                currentGiftIndex: state.currentGiftIndex,
+	                isDoing: isDoing,
+	                lotteryDone: lotteryDone
+	            };
+
+	        default:
+	            return state;
+	    }
+	};
+
+	module.exports = lotteryReducer;
+
+/***/ },
+/* 269 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(1);
 	var Link = __webpack_require__(199).Link;
 
@@ -29376,7 +29430,7 @@
 	module.exports = Main;
 
 /***/ },
-/* 269 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29386,9 +29440,9 @@
 
 	var connect = __webpack_require__(172).connect;
 
-	var isEmail = __webpack_require__(270);
+	var isEmail = __webpack_require__(271);
 
-	var loadApplicants = __webpack_require__(275).loadApplicants;
+	var loadApplicants = __webpack_require__(276).loadApplicants;
 
 	var UploadCSV = React.createClass({
 	    displayName: 'UploadCSV',
@@ -29415,7 +29469,10 @@
 	            var lines = this.result.split('\n');
 	            for (var line = 0; line < lines.length; line++) {
 	                if (isEmail(lines[line])) {
-	                    array.push(lines[line]);
+	                    array.push({
+	                        email: lines[line],
+	                        win: false
+	                    });
 	                } else {
 	                    console.log('"' + lines[line] + '" is not valid email.');
 	                }
@@ -29505,7 +29562,7 @@
 	module.exports = connect(mapStateToProps)(UploadCSV);
 
 /***/ },
-/* 270 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29515,19 +29572,19 @@
 	});
 	exports.default = isEmail;
 
-	var _assertString = __webpack_require__(271);
+	var _assertString = __webpack_require__(272);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(272);
+	var _merge = __webpack_require__(273);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
-	var _isByteLength = __webpack_require__(273);
+	var _isByteLength = __webpack_require__(274);
 
 	var _isByteLength2 = _interopRequireDefault(_isByteLength);
 
-	var _isFQDN = __webpack_require__(274);
+	var _isFQDN = __webpack_require__(275);
 
 	var _isFQDN2 = _interopRequireDefault(_isFQDN);
 
@@ -29596,7 +29653,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 271 */
+/* 272 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29613,7 +29670,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 272 */
+/* 273 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29636,7 +29693,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 273 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29649,7 +29706,7 @@
 
 	exports.default = isByteLength;
 
-	var _assertString = __webpack_require__(271);
+	var _assertString = __webpack_require__(272);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
@@ -29674,7 +29731,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 274 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29684,11 +29741,11 @@
 	});
 	exports.default = isFDQN;
 
-	var _assertString = __webpack_require__(271);
+	var _assertString = __webpack_require__(272);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(272);
+	var _merge = __webpack_require__(273);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
@@ -29736,7 +29793,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 275 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29774,10 +29831,32 @@
 	    };
 	};
 
+	Actions.initializeLottery = function (giftList) {
+	    return {
+	        type: ActionTypes.INITIALIZE_LOTTERY,
+	        giftList: giftList
+	    };
+	};
+
+	Actions.startLottery = function (giftIndex) {
+	    return {
+	        type: ActionTypes.START_LOTTERY,
+	        giftIndex: giftIndex
+	    };
+	};
+
+	Actions.setWinner = function (applicantIndex, email) {
+	    return {
+	        type: ActionTypes.SET_WINNER,
+	        applicantIndex: applicantIndex,
+	        email: email
+	    };
+	};
+
 	module.exports = Actions;
 
 /***/ },
-/* 276 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29788,10 +29867,10 @@
 
 	var connect = __webpack_require__(172).connect;
 
-	var addGift = __webpack_require__(275).addGift;
-	var deleteGift = __webpack_require__(275).deleteGift;
+	var addGift = __webpack_require__(276).addGift;
+	var deleteGift = __webpack_require__(276).deleteGift;
 
-	var extend = __webpack_require__(277);
+	var extend = __webpack_require__(278);
 
 	var GiftItem = React.createClass({
 	    displayName: 'GiftItem',
@@ -29951,7 +30030,7 @@
 	module.exports = connect(mapStateToProps)(InputGift);
 
 /***/ },
-/* 277 */
+/* 278 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30041,6 +30120,261 @@
 	};
 
 
+
+/***/ },
+/* 279 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var Link = __webpack_require__(199).Link;
+	var withRouter = __webpack_require__(199).withRouter;
+
+	var connect = __webpack_require__(172).connect;
+
+	var initializeLottery = __webpack_require__(276).initializeLottery;
+	var startLottery = __webpack_require__(276).startLottery;
+	var setWinner = __webpack_require__(276).setWinner;
+
+	var LotteryItem = React.createClass({
+	    displayName: 'LotteryItem',
+
+	    handleClick: function handleClick(e) {
+	        e.preventDefault();
+
+	        this.props.handleStart(this.props.index);
+	    },
+
+	    render: function render() {
+	        var buttonOrLabel = React.createElement('input', { type: 'button', value: '추첨 시작', onClick: this.handleClick });
+
+	        if (this.props.done) {
+	            buttonOrLabel = React.createElement(
+	                'b',
+	                null,
+	                '추첨 완료'
+	            );
+	        }
+
+	        return React.createElement(
+	            'li',
+	            null,
+	            React.createElement(
+	                'b',
+	                null,
+	                this.props.name
+	            ),
+	            ' ',
+	            this.props.count,
+	            ' 개 - ',
+	            buttonOrLabel
+	        );
+	    }
+	});
+
+	var LotteryList = React.createClass({
+	    displayName: 'LotteryList',
+
+	    handleStart: function handleStart(index) {
+	        this.props.handleStartLottery(index);
+	    },
+
+	    render: function render() {
+	        var listGifts = [];
+	        var giftList = this.props.giftList;
+
+	        if (giftList) {
+	            for (var i = 0; i < giftList.length; i++) {
+	                listGifts.push(React.createElement(LotteryItem, {
+	                    key: i,
+	                    index: i,
+	                    name: giftList[i].name,
+	                    count: giftList[i].count,
+	                    done: giftList[i].done,
+	                    handleStart: this.handleStart
+	                }));
+	            }
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 목록'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                listGifts
+	            )
+	        );
+	    }
+	});
+
+	var WinnerList = React.createClass({
+	    displayName: 'WinnerList',
+
+	    render: function render() {
+	        var winnerList = [];
+	        for (var i = 0; i < this.props.winnerList.length; i++) {
+	            winnerList.push(React.createElement(
+	                'li',
+	                { key: i },
+	                this.props.winnerList[i]
+	            ));
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                React.createElement(
+	                    'b',
+	                    null,
+	                    this.props.giftName,
+	                    ' '
+	                ),
+	                '당첨자 목록'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                winnerList
+	            )
+	        );
+	    }
+	});
+
+	var LotteryDraw = React.createClass({
+	    displayName: 'LotteryDraw',
+
+	    handleDraw: function handleDraw() {
+	        this.props.handleDraw();
+	    },
+
+	    render: function render() {
+	        var lotteryButton = React.createElement(
+	            'p',
+	            null,
+	            '추첨 ',
+	            React.createElement(
+	                'b',
+	                null,
+	                '완료'
+	            )
+	        );
+	        if (this.props.isDoing) {
+	            lotteryButton = React.createElement(
+	                'p',
+	                null,
+	                React.createElement('input', { type: 'button', value: '추첨 하기', onClick: this.handleDraw })
+	            );
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                this.props.gift.name,
+	                ' - 총 ',
+	                this.props.gift.count,
+	                '개'
+	            ),
+	            lotteryButton,
+	            React.createElement(WinnerList, { giftName: this.props.gift.name, winnerList: this.props.gift.winnerList })
+	        );
+	    }
+	});
+
+	var Lottery = withRouter(React.createClass({
+	    displayName: 'Lottery',
+
+	    componentWillMount: function componentWillMount() {
+	        if (this.props.gifts.list) {
+	            this.props.dispatch(initializeLottery(this.props.gifts.list));
+	        } else {
+	            this.props.router.replace('/');
+	        }
+	    },
+
+	    handleDraw: function handleDraw() {
+	        var applicants = this.props.applicants.list;
+
+	        var min = 1;
+	        var max = applicants.length;
+	        var index = 1;
+	        do {
+	            index = Math.floor(Math.random() * (max - min)) + min;
+	        } while (applicants[index].win);
+
+	        var email = this.props.applicants.list[index].email;
+
+	        this.props.dispatch(setWinner(index, email));
+	    },
+
+	    handleStartLottery: function handleStartLottery(index) {
+	        console.log(this.props.lottery.giftList[index]);
+
+	        this.props.dispatch(startLottery(index, this.props.lottery.giftList[index]));
+	    },
+
+	    render: function render() {
+	        var isDoing = this.props.lottery.isDoing;
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '경품 추첨'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
+	                '각 경품을 받을 응모자를 추첨합니다.'
+	            ),
+	            !isDoing && React.createElement(LotteryList, {
+	                giftList: this.props.lottery.giftList,
+	                handleStartLottery: this.handleStartLottery
+	            }),
+	            typeof this.props.lottery.currentGiftIndex !== 'undefined' && React.createElement(LotteryDraw, {
+	                isDoing: this.props.lottery.isDoing,
+	                gift: this.props.lottery.giftList[this.props.lottery.currentGiftIndex],
+	                handleDraw: this.handleDraw
+	            }),
+	            this.props.lottery.lotteryDone && React.createElement(
+	                'p',
+	                null,
+	                '모든 추첨이 종료되었습니다. ',
+	                React.createElement(
+	                    Link,
+	                    { to: '/winner' },
+	                    '여기'
+	                ),
+	                '를 눌러서 추첨 결과를 확인합니다.'
+	            )
+	        );
+	    }
+	}));
+
+	function mapStateToProps(state) {
+	    return {
+	        applicants: state.applicants,
+	        gifts: state.gifts,
+	        lottery: state.lottery
+	    };
+	}
+
+	module.exports = connect(mapStateToProps)(Lottery);
 
 /***/ }
 /******/ ]);

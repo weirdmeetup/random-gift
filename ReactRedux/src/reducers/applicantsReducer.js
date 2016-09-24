@@ -18,6 +18,14 @@ var applicantsReducer = function(state, action) {
             list: undefined
         };
 
+    case ActionTypes.SET_WINNER:
+        var newList = state.list.slice();
+        newList[action.applicantIndex].win = true;
+
+        return {
+            list: newList
+        };
+
     default:
         return state;
     }

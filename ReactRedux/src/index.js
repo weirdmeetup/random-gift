@@ -14,26 +14,7 @@ var store = require('./store');
 var Main = require('./containers/Main');
 var UploadCSV = require('./containers/UploadCSV');
 var InputGift = require('./containers/InputGift');
-
-var Lottery = React.createClass({
-    render: function() {
-        return (
-            <div>
-                <h1>Lottery</h1>
-                <Link to="/winner">Go to winner</Link>
-                <h1>경품 목록</h1>
-                <ul>
-                    <li>
-                        선물 1 / 2 - <b>a@gmail.com</b>
-                    </li>
-                    <li>
-                        선물 2 / 2 - <input type="button" value="추첨" />
-                    </li>
-                </ul>
-            </div>
-        );
-    }
-});
+var Lottery = require('./containers/Lottery');
 
 var Winner = React.createClass({
     render: function() {

@@ -32,4 +32,26 @@ Actions.deleteGift = function(name, count) {
     };
 };
 
+Actions.initializeLottery = function(giftList) {
+    return {
+        type: ActionTypes.INITIALIZE_LOTTERY,
+        giftList: giftList
+    };
+};
+
+Actions.startLottery = function(giftIndex) {
+    return {
+        type: ActionTypes.START_LOTTERY,
+        giftIndex: giftIndex
+    };
+};
+
+Actions.setWinner = function(applicantIndex, email) {
+    return {
+        type: ActionTypes.SET_WINNER,
+        applicantIndex: applicantIndex,
+        email: email
+    };
+};
+
 module.exports = Actions;
