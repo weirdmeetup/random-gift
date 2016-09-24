@@ -59,10 +59,11 @@
 	var store = __webpack_require__(262);
 
 	var Main = __webpack_require__(269);
+
 	var UploadCSV = __webpack_require__(270);
-	var InputGift = __webpack_require__(277);
-	var Lottery = __webpack_require__(279);
-	var Winner = __webpack_require__(280);
+	var InputGift = __webpack_require__(278);
+	var Lottery = __webpack_require__(281);
+	var Winner = __webpack_require__(283);
 
 	ReactDOM.render(React.createElement(
 	    Provider,
@@ -29360,18 +29361,13 @@
 	            React.createElement(
 	                'p',
 	                null,
-	                '사용해주셔서 감사합니다.'
-	            ),
-	            React.createElement(
-	                'p',
-	                null,
-	                '경품 추첨을 시작해봅니다. ',
+	                '경품 추첨을 시작하려면 ',
 	                React.createElement(
 	                    Link,
 	                    { to: '/uploadCSV' },
-	                    '여기를'
+	                    '여기'
 	                ),
-	                ' 눌러주세요.'
+	                '를 눌러주세요.'
 	            )
 	        );
 	    }
@@ -29385,17 +29381,104 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var Link = __webpack_require__(199).Link;
+	var bindActionCreators = __webpack_require__(179).bindActionCreators;
 
 	var connect = __webpack_require__(172).connect;
 
-	var isEmail = __webpack_require__(271);
+	var loadApplicants = __webpack_require__(271).loadApplicants;
 
-	var loadApplicants = __webpack_require__(276).loadApplicants;
+	var CSVUploader = __webpack_require__(272);
 
-	var UploadCSV = React.createClass({
-	    displayName: 'UploadCSV',
+	function mapStateToProps(state) {
+	    return {
+	        applicants: state.applicants
+	    };
+	}
+
+	function mapDispatchToProps(dispatch) {
+	    return {
+	        loadApplicants: bindActionCreators(loadApplicants, dispatch)
+	    };
+	}
+
+	module.exports = connect(mapStateToProps, mapDispatchToProps)(CSVUploader);
+
+/***/ },
+/* 271 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ActionTypes = __webpack_require__(266);
+
+	var Actions = {};
+
+	Actions.reset = function () {
+	    return {
+	        type: ActionTypes.RESET
+	    };
+	};
+
+	Actions.loadApplicants = function (applicants) {
+	    return {
+	        type: ActionTypes.LOAD_APPLICANTS,
+	        applicants: applicants
+	    };
+	};
+
+	Actions.addGift = function (name, count) {
+	    return {
+	        type: ActionTypes.ADD_GIFT,
+	        name: name,
+	        count: count
+	    };
+	};
+
+	Actions.deleteGift = function (name, count) {
+	    return {
+	        type: ActionTypes.DELETE_GIFT,
+	        name: name,
+	        count: count
+	    };
+	};
+
+	Actions.initializeLottery = function (giftList) {
+	    return {
+	        type: ActionTypes.INITIALIZE_LOTTERY,
+	        giftList: giftList
+	    };
+	};
+
+	Actions.startLottery = function (giftIndex) {
+	    return {
+	        type: ActionTypes.START_LOTTERY,
+	        giftIndex: giftIndex
+	    };
+	};
+
+	Actions.setWinner = function (applicantIndex, email) {
+	    return {
+	        type: ActionTypes.SET_WINNER,
+	        applicantIndex: applicantIndex,
+	        email: email
+	    };
+	};
+
+	module.exports = Actions;
+
+/***/ },
+/* 272 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var Link = __webpack_require__(199).Link;
+
+	var isEmail = __webpack_require__(273);
+
+	var CSVUploader = React.createClass({
+	    displayName: 'CSVUploader',
 
 	    handleFile: function handleFile(e) {
 	        this.file = e.target.files[0];
@@ -29410,8 +29493,7 @@
 	        }
 
 	        var reader = new FileReader();
-	        var dispatch = this.props.dispatch;
-
+	        var loadApplicants = this.props.loadApplicants;
 	        reader.onload = function () {
 	            var array = [];
 
@@ -29424,18 +29506,18 @@
 	                        win: false
 	                    });
 	                } else {
-	                    console.log('"' + lines[line] + '" is not valid email.');
+	                    console.log('"' + lines[line] + '" is not a valid email.');
 	                }
 	            }
 
-	            dispatch(loadApplicants(array));
+	            loadApplicants(array);
 	        };
 	        reader.readAsText(this.file);
 	    },
 
 	    render: function render() {
 	        var loaded = false;
-	        var loadedStatus = React.createElement(
+	        var statusLabel = React.createElement(
 	            'p',
 	            null,
 	            '아직 응모자 명단이 입력되지 않았습니다.'
@@ -29443,7 +29525,7 @@
 
 	        if (this.props.applicants.list) {
 	            loaded = true;
-	            loadedStatus = React.createElement(
+	            statusLabel = React.createElement(
 	                'p',
 	                null,
 	                ' 응모자 ',
@@ -29467,13 +29549,16 @@
 	            React.createElement(
 	                'p',
 	                null,
-	                '응모자 명단을 입력합니다. ',
 	                React.createElement(
 	                    'b',
 	                    null,
 	                    '파일 선택'
 	                ),
-	                '을 눌러 응모자 명단이 들어있는 CSV파일을 선택합니다. ',
+	                '을 눌러 응모자 명단이 들어있는 CSV파일을 선택합니다.'
+	            ),
+	            React.createElement(
+	                'p',
+	                null,
 	                React.createElement(
 	                    'b',
 	                    null,
@@ -29487,7 +29572,7 @@
 	                React.createElement('input', { type: 'file', name: 'file', id: 'file', onChange: this.handleFile }),
 	                React.createElement('input', { type: 'submit', value: '올리기' })
 	            ),
-	            loadedStatus,
+	            statusLabel,
 	            loaded && React.createElement(
 	                'p',
 	                null,
@@ -29503,16 +29588,10 @@
 	    }
 	});
 
-	function mapStateToProps(state) {
-	    return {
-	        applicants: state.applicants
-	    };
-	}
-
-	module.exports = connect(mapStateToProps)(UploadCSV);
+	module.exports = CSVUploader;
 
 /***/ },
-/* 271 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29522,19 +29601,19 @@
 	});
 	exports.default = isEmail;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(274);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(273);
+	var _merge = __webpack_require__(275);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
-	var _isByteLength = __webpack_require__(274);
+	var _isByteLength = __webpack_require__(276);
 
 	var _isByteLength2 = _interopRequireDefault(_isByteLength);
 
-	var _isFQDN = __webpack_require__(275);
+	var _isFQDN = __webpack_require__(277);
 
 	var _isFQDN2 = _interopRequireDefault(_isFQDN);
 
@@ -29603,7 +29682,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 272 */
+/* 274 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29620,7 +29699,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 273 */
+/* 275 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -29643,7 +29722,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 274 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29656,7 +29735,7 @@
 
 	exports.default = isByteLength;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(274);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
@@ -29681,7 +29760,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 275 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29691,11 +29770,11 @@
 	});
 	exports.default = isFDQN;
 
-	var _assertString = __webpack_require__(272);
+	var _assertString = __webpack_require__(274);
 
 	var _assertString2 = _interopRequireDefault(_assertString);
 
-	var _merge = __webpack_require__(273);
+	var _merge = __webpack_require__(275);
 
 	var _merge2 = _interopRequireDefault(_merge);
 
@@ -29743,70 +29822,37 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 276 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ActionTypes = __webpack_require__(266);
+	var bindActionCreators = __webpack_require__(179).bindActionCreators;
 
-	var Actions = {};
+	var connect = __webpack_require__(172).connect;
 
-	Actions.reset = function () {
+	var addGift = __webpack_require__(271).addGift;
+	var deleteGift = __webpack_require__(271).deleteGift;
+
+	var GiftManagement = __webpack_require__(279);
+
+	function mapStateToProps(state) {
 	    return {
-	        type: ActionTypes.RESET
+	        gifts: state.gifts
 	    };
-	};
+	}
 
-	Actions.loadApplicants = function (applicants) {
+	function mapDispatchToProps(dispatch) {
 	    return {
-	        type: ActionTypes.LOAD_APPLICANTS,
-	        applicants: applicants
+	        addGift: bindActionCreators(addGift, dispatch),
+	        deleteGift: bindActionCreators(deleteGift, dispatch)
 	    };
-	};
+	}
 
-	Actions.addGift = function (name, count) {
-	    return {
-	        type: ActionTypes.ADD_GIFT,
-	        name: name,
-	        count: count
-	    };
-	};
-
-	Actions.deleteGift = function (name, count) {
-	    return {
-	        type: ActionTypes.DELETE_GIFT,
-	        name: name,
-	        count: count
-	    };
-	};
-
-	Actions.initializeLottery = function (giftList) {
-	    return {
-	        type: ActionTypes.INITIALIZE_LOTTERY,
-	        giftList: giftList
-	    };
-	};
-
-	Actions.startLottery = function (giftIndex) {
-	    return {
-	        type: ActionTypes.START_LOTTERY,
-	        giftIndex: giftIndex
-	    };
-	};
-
-	Actions.setWinner = function (applicantIndex, email) {
-	    return {
-	        type: ActionTypes.SET_WINNER,
-	        applicantIndex: applicantIndex,
-	        email: email
-	    };
-	};
-
-	module.exports = Actions;
+	module.exports = connect(mapStateToProps, mapDispatchToProps)(GiftManagement);
 
 /***/ },
-/* 277 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29815,12 +29861,7 @@
 
 	var Link = __webpack_require__(199).Link;
 
-	var connect = __webpack_require__(172).connect;
-
-	var addGift = __webpack_require__(276).addGift;
-	var deleteGift = __webpack_require__(276).deleteGift;
-
-	var extend = __webpack_require__(278);
+	var extend = __webpack_require__(280);
 
 	var GiftItem = React.createClass({
 	    displayName: 'GiftItem',
@@ -29848,8 +29889,8 @@
 	    }
 	});
 
-	var InputGift = React.createClass({
-	    displayName: 'InputGift',
+	var GiftManagement = React.createClass({
+	    displayName: 'GiftManagement',
 
 	    getInitialState: function getInitialState() {
 	        return {
@@ -29859,7 +29900,7 @@
 	    },
 
 	    handleDeleteGift: function handleDeleteGift(name, count) {
-	        this.props.dispatch(deleteGift(name, count));
+	        this.props.deleteGift(name, count);
 	    },
 
 	    handleGiftName: function handleGiftName(e) {
@@ -29879,7 +29920,7 @@
 	            return;
 	        }
 
-	        this.props.dispatch(addGift(this.state.giftName, this.state.giftCount));
+	        this.props.addGift(this.state.giftName, this.state.giftCount);
 
 	        this.setState({
 	            giftName: '',
@@ -29960,27 +30001,22 @@
 	            giftsAdded && React.createElement(
 	                'p',
 	                null,
+	                '경품 추첨을 하려면 ',
 	                React.createElement(
 	                    Link,
 	                    { to: '/lottery' },
 	                    '여기'
 	                ),
-	                '를 눌러 경품 추첨으로 이동합니다.'
+	                '를 눌러주세요.'
 	            )
 	        );
 	    }
 	});
 
-	function mapStateToProps(state) {
-	    return {
-	        gifts: state.gifts
-	    };
-	}
-
-	module.exports = connect(mapStateToProps)(InputGift);
+	module.exports = GiftManagement;
 
 /***/ },
-/* 278 */
+/* 280 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -30072,7 +30108,41 @@
 
 
 /***/ },
-/* 279 */
+/* 281 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var bindActionCreators = __webpack_require__(179).bindActionCreators;
+
+	var connect = __webpack_require__(172).connect;
+
+	var initializeLottery = __webpack_require__(271).initializeLottery;
+	var startLottery = __webpack_require__(271).startLottery;
+	var setWinner = __webpack_require__(271).setWinner;
+
+	var LotteryManagement = __webpack_require__(282);
+
+	function mapStateToProps(state) {
+	    return {
+	        applicants: state.applicants,
+	        gifts: state.gifts,
+	        lottery: state.lottery
+	    };
+	}
+
+	function mapDispatchToProps(dispatch) {
+	    return {
+	        initializeLottery: bindActionCreators(initializeLottery, dispatch),
+	        startLottery: bindActionCreators(startLottery, dispatch),
+	        setWinner: bindActionCreators(setWinner, dispatch)
+	    };
+	}
+
+	module.exports = connect(mapStateToProps, mapDispatchToProps)(LotteryManagement);
+
+/***/ },
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30081,12 +30151,6 @@
 
 	var Link = __webpack_require__(199).Link;
 	var withRouter = __webpack_require__(199).withRouter;
-
-	var connect = __webpack_require__(172).connect;
-
-	var initializeLottery = __webpack_require__(276).initializeLottery;
-	var startLottery = __webpack_require__(276).startLottery;
-	var setWinner = __webpack_require__(276).setWinner;
 
 	var LotteryItem = React.createClass({
 	    displayName: 'LotteryItem',
@@ -30132,12 +30196,12 @@
 	    },
 
 	    render: function render() {
-	        var listGifts = [];
+	        var list = [];
 	        var giftList = this.props.giftList;
 
 	        if (giftList) {
 	            for (var i = 0; i < giftList.length; i++) {
-	                listGifts.push(React.createElement(LotteryItem, {
+	                list.push(React.createElement(LotteryItem, {
 	                    key: i,
 	                    index: i,
 	                    name: giftList[i].name,
@@ -30159,7 +30223,7 @@
 	            React.createElement(
 	                'ul',
 	                null,
-	                listGifts
+	                list
 	            )
 	        );
 	    }
@@ -30171,11 +30235,23 @@
 	    render: function render() {
 	        var winnerList = [];
 	        for (var i = 0; i < this.props.winnerList.length; i++) {
-	            winnerList.push(React.createElement(
-	                'li',
-	                { key: i },
-	                this.props.winnerList[i]
-	            ));
+	            if (i === this.props.winnerList.length - 1) {
+	                winnerList.push(React.createElement(
+	                    'li',
+	                    { key: i },
+	                    React.createElement(
+	                        'b',
+	                        null,
+	                        this.props.winnerList[i]
+	                    )
+	                ));
+	            } else {
+	                winnerList.push(React.createElement(
+	                    'li',
+	                    { key: i },
+	                    this.props.winnerList[i]
+	                ));
+	            }
 	        }
 
 	        return React.createElement(
@@ -30223,7 +30299,11 @@
 	            lotteryButton = React.createElement(
 	                'p',
 	                null,
-	                React.createElement('input', { type: 'button', value: '추첨 하기', onClick: this.handleDraw })
+	                React.createElement('input', {
+	                    type: 'button',
+	                    value: '추첨 하기',
+	                    onClick: this.handleDraw
+	                })
 	            );
 	        }
 
@@ -30239,17 +30319,24 @@
 	                '개'
 	            ),
 	            lotteryButton,
-	            React.createElement(WinnerList, { giftName: this.props.gift.name, winnerList: this.props.gift.winnerList })
+	            React.createElement(WinnerList, {
+	                giftName: this.props.gift.name,
+	                winnerList: this.props.gift.winnerList
+	            })
 	        );
 	    }
 	});
 
-	var Lottery = withRouter(React.createClass({
-	    displayName: 'Lottery',
+	var LotteryManagement = withRouter(React.createClass({
+	    displayName: 'LotteryManagement',
 
 	    componentWillMount: function componentWillMount() {
+	        if (!this.props.applicants) {
+	            this.props.router.replace('/');
+	        }
+
 	        if (this.props.gifts.list) {
-	            this.props.dispatch(initializeLottery(this.props.gifts.list));
+	            this.props.initializeLottery(this.props.gifts.list);
 	        } else {
 	            this.props.router.replace('/');
 	        }
@@ -30265,18 +30352,21 @@
 	            index = Math.floor(Math.random() * (max - min)) + min;
 	        } while (applicants[index].win);
 
-	        var email = this.props.applicants.list[index].email;
+	        var email = applicants[index].email;
 
-	        this.props.dispatch(setWinner(index, email));
+	        this.props.setWinner(index, email);
 	    },
 
 	    handleStartLottery: function handleStartLottery(index) {
-	        console.log(this.props.lottery.giftList[index]);
-
-	        this.props.dispatch(startLottery(index, this.props.lottery.giftList[index]));
+	        this.props.startLottery(index, this.props.lottery.giftList[index]);
 	    },
 
 	    render: function render() {
+
+	        if (!this.props.applicants || !this.props.gifts.list) {
+	            this.props.router.replace('/');
+	        }
+
 	        var isDoing = this.props.lottery.isDoing;
 
 	        return React.createElement(
@@ -30290,44 +30380,63 @@
 	            React.createElement(
 	                'p',
 	                null,
-	                '각 경품을 받을 응모자를 추첨합니다.'
+	                '각 경품별로 당첨자를 추첨합니다.'
 	            ),
 	            !isDoing && React.createElement(LotteryList, {
 	                giftList: this.props.lottery.giftList,
 	                handleStartLottery: this.handleStartLottery
 	            }),
 	            typeof this.props.lottery.currentGiftIndex !== 'undefined' && React.createElement(LotteryDraw, {
-	                isDoing: this.props.lottery.isDoing,
+	                isDoing: isDoing,
 	                gift: this.props.lottery.giftList[this.props.lottery.currentGiftIndex],
 	                handleDraw: this.handleDraw
 	            }),
 	            this.props.lottery.lotteryDone && React.createElement(
-	                'p',
+	                'div',
 	                null,
-	                '모든 추첨이 종료되었습니다. ',
 	                React.createElement(
-	                    Link,
-	                    { to: '/winner' },
-	                    '여기'
+	                    'p',
+	                    null,
+	                    '모든 추첨이 종료되었습니다.'
 	                ),
-	                '를 눌러서 추첨 결과를 확인합니다.'
+	                React.createElement(
+	                    'p',
+	                    null,
+	                    '추첨 결과를 확인하려면 ',
+	                    React.createElement(
+	                        Link,
+	                        { to: '/winner' },
+	                        '여기'
+	                    ),
+	                    '를 눌러주세요.'
+	                )
 	            )
 	        );
 	    }
 	}));
 
+	module.exports = LotteryManagement;
+
+/***/ },
+/* 283 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var connect = __webpack_require__(172).connect;
+
+	var DisplayWinner = __webpack_require__(284);
+
 	function mapStateToProps(state) {
 	    return {
-	        applicants: state.applicants,
-	        gifts: state.gifts,
-	        lottery: state.lottery
+	        giftList: state.lottery.giftList
 	    };
 	}
 
-	module.exports = connect(mapStateToProps)(Lottery);
+	module.exports = connect(mapStateToProps)(DisplayWinner);
 
 /***/ },
-/* 280 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30335,8 +30444,6 @@
 	var React = __webpack_require__(1);
 
 	var withRouter = __webpack_require__(199).withRouter;
-
-	var connect = __webpack_require__(172).connect;
 
 	var WinnerList = React.createClass({
 	    displayName: 'WinnerList',
@@ -30369,8 +30476,8 @@
 	    }
 	});
 
-	var Winner = withRouter(React.createClass({
-	    displayName: 'Winner',
+	var DisplayWinner = withRouter(React.createClass({
+	    displayName: 'DisplayWinner',
 
 	    componentWillMount: function componentWillMount() {
 	        if (!this.props.giftList) {
@@ -30379,6 +30486,10 @@
 	    },
 
 	    render: function render() {
+	        if (!this.props.giftList) {
+	            this.props.router.replace('/');
+	        }
+
 	        var list = [];
 	        for (var i = 0; i < this.props.giftList.length; i++) {
 	            list.push(React.createElement(WinnerList, { key: i, gift: this.props.giftList[i] }));
@@ -30398,13 +30509,7 @@
 	    }
 	}));
 
-	function mapStateToProps(state) {
-	    return {
-	        giftList: state.lottery.giftList
-	    };
-	}
-
-	module.exports = connect(mapStateToProps)(Winner);
+	module.exports = DisplayWinner;
 
 /***/ }
 /******/ ]);

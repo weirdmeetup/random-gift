@@ -10,7 +10,8 @@ var IndexRoute = require('react-router').IndexRoute;
 
 var store = require('./store');
 
-var Main = require('./containers/Main');
+var Main = require('./components/Main');
+
 var UploadCSV = require('./containers/UploadCSV');
 var InputGift = require('./containers/InputGift');
 var Lottery = require('./containers/Lottery');
