@@ -55,7 +55,6 @@
 	var Router = __webpack_require__(199).Router;
 	var HashHistory = __webpack_require__(199).hashHistory;
 	var IndexRoute = __webpack_require__(199).IndexRoute;
-	var Link = __webpack_require__(199).Link;
 
 	var store = __webpack_require__(262);
 
@@ -63,56 +62,7 @@
 	var UploadCSV = __webpack_require__(270);
 	var InputGift = __webpack_require__(277);
 	var Lottery = __webpack_require__(279);
-
-	var Winner = React.createClass({
-	    displayName: 'Winner',
-
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'h1',
-	                null,
-	                'Winner'
-	            ),
-	            React.createElement(
-	                Link,
-	                { to: '/' },
-	                'Reset'
-	            ),
-	            React.createElement(
-	                'h1',
-	                null,
-	                '경품 목록'
-	            ),
-	            React.createElement(
-	                'ul',
-	                null,
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물 1 / 2 - ',
-	                    React.createElement(
-	                        'b',
-	                        null,
-	                        'a@gmail.com'
-	                    )
-	                ),
-	                React.createElement(
-	                    'li',
-	                    null,
-	                    '선물 2 / 2 - ',
-	                    React.createElement(
-	                        'b',
-	                        null,
-	                        'b@gmail.com'
-	                    )
-	                )
-	            )
-	        );
-	    }
-	});
+	var Winner = __webpack_require__(280);
 
 	ReactDOM.render(React.createElement(
 	    Provider,
@@ -30375,6 +30325,86 @@
 	}
 
 	module.exports = connect(mapStateToProps)(Lottery);
+
+/***/ },
+/* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+
+	var withRouter = __webpack_require__(199).withRouter;
+
+	var connect = __webpack_require__(172).connect;
+
+	var WinnerList = React.createClass({
+	    displayName: 'WinnerList',
+
+	    render: function render() {
+	        var list = [];
+	        for (var i = 0; i < this.props.gift.winnerList.length; i++) {
+	            list.push(React.createElement(
+	                'li',
+	                { key: i },
+	                this.props.gift.winnerList[i]
+	            ));
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h2',
+	                null,
+	                this.props.gift.name,
+	                ' 당첨자'
+	            ),
+	            React.createElement(
+	                'ul',
+	                null,
+	                list
+	            )
+	        );
+	    }
+	});
+
+	var Winner = withRouter(React.createClass({
+	    displayName: 'Winner',
+
+	    componentWillMount: function componentWillMount() {
+	        if (!this.props.giftList) {
+	            this.props.router.replace('/');
+	        }
+	    },
+
+	    render: function render() {
+	        var list = [];
+	        for (var i = 0; i < this.props.giftList.length; i++) {
+	            list.push(React.createElement(WinnerList, { key: i, gift: this.props.giftList[i] }));
+	        }
+
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h1',
+	                null,
+	                '당첨자 목록'
+	            ),
+	            '경품별 당첨자 목록입니다.',
+	            list
+	        );
+	    }
+	}));
+
+	function mapStateToProps(state) {
+	    return {
+	        giftList: state.lottery.giftList
+	    };
+	}
+
+	module.exports = connect(mapStateToProps)(Winner);
 
 /***/ }
 /******/ ]);
