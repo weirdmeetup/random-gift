@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>이모콘 당첨자 발표</title>
+    <script src="js/init.js" type="application/javascript"></script>
+    <script src="js/lotto.js" type="application/javascript"></script>
+</head>
+<body>
+<div>
+    <input type="file" id="csvfile">
+    <textarea id="csvlist" style="width: 400px; height: 500px;"></textarea>
+    <!-- <input type="button" onclick="WeirdMeetup.doMemberInsert()" value="입력"> -->
+    <input type="button" onclick="WeirdMeetup.doMemberInsert()" value="입력">
+</div>
+<div>
+    <table id="member_list">
+        <thead>
+            <tr>
+                <th>idx</th>
+                <th>이메일</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<!-- 경품리스트 -->
+<div>
+    <input type="text" class="gift" placeholder="경품 입력">
+</div>
+
+</body>
+</html>
