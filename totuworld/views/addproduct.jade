@@ -1,0 +1,53 @@
+head
+    meta(charset='utf-8')
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://www.fuelcdn.com/fuelux/3.13.0/css/fuelux.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js')
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==", crossorigin="anonymous")
+    script(type='text/javascript' src='https://www.fuelcdn.com/fuelux/3.13.0/js/fuelux.min.js')
+    script(type='text/javascript').
+        $(document).ready(function () {
+            $('#myWizard').wizard('selectedItem', {
+                step: 2
+            });
+        });
+
+body.fuelux
+    .container
+        if msg
+            .row
+                div(class='alert alert-danger') #{msg}
+        .row
+            h3 상품 입력
+            form(class='form-inline .col-md-6', action='/product', method="post")
+                if productName
+                    input(type="string", class='form-control', name='productName', value='#{productName}', placeholder='상품명')
+                else
+                    input(type="string", class='form-control', name='productName', placeholder='상품명')
+                .input-group
+                    if productQty
+                        input(type="number", class='form-control', name='productQty', value='#{productQty}', placeholder='상품 갯수')
+                    else
+                        input(type="number", class='form-control', name='productQty', placeholder='상품 갯수')
+                    .input-group-btn
+                        input(type='submit', value='추가', class='btn btn-success')
+        if products
+            .row
+                h3 등록된 목록
+                table(class="table table-striped")
+                    thead
+                        tr
+                            td 상품명
+                            td 상품 갯수
+                    tbody
+                        for product,i in products
+                            tr
+                                td #{product['name']}
+                                td #{product['qyt']}
+            .row
+                p 모든 상품을 입력하셨다면 다음 단계로 진행하세요
+                input(type='submit', value='다음', class='btn btn-success' onclick="location.href='/gift'")
+        .row
+            include step
