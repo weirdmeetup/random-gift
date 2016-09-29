@@ -27,7 +27,7 @@ Node.js로 경품 추첨기를 만들어보자!!
     $ node ./bin/www
     ```
 
-3. 브라우저로 [접속](http://localhost:4885)
+3. 브라우저로 [http://localhost:4885 접속](http://localhost:4885)
 
 ### docker를 활용하여 처리하기
 > 필요사항 : Docker >= 1.x
@@ -42,4 +42,4 @@ Node.js로 경품 추첨기를 만들어보자!!
     $ docker run -d -p 4885:4885 randomgift
     ```
 
-3. 브라우저로 [접속](http://localhost:4885)
+3. 브라우저로 [http://localhost:4885 접속](http://localhost:4885)
