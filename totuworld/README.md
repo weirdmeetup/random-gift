@@ -13,9 +13,9 @@ Node.js로 경품 추첨기를 만들어보자!!
 > 필요사항 :  Node.js >= 4.x
 
 1. 모듈 설치
-```
-$ npm install
-```
+    ```
+    $ npm install
+    ```
 
 2. 실행
 
@@ -29,19 +29,19 @@ $ npm start
 $ node ./bin/www
 ```
 
-3. 브라우저로 [접속](localhost:4885)
+3. 브라우저로 [접속](http://localhost:4885)
 
 ### docker를 활용하여 처리하기
 > 필요사항 : Docker >= 1.x
 
 1. 이미지 생성
-```
-$ docker build -t randomgift .
-```
+    ```
+    $ docker build -t randomgift .
+    ```
 
 2. 생성된 `randomgift` 이미지로 컨테이너 생성
-```
-$ docker run -d -p 4885:4885 randomgift
-```
+    ```
+    $ docker run -d -p 4885:4885 randomgift
+    ```
 
-3. 브라우저로 [접속](localhost:4885)
+3. 브라우저로 [접속](http://localhost:4885)
