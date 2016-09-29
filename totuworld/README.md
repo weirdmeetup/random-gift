@@ -19,15 +19,13 @@ Node.js로 경품 추첨기를 만들어보자!!
 
 2. 실행
 
-```
-$ npm start
-```
-
-혹은 
-
-```
-$ node ./bin/www
-```
+    ```
+    $ npm start
+    ```
+    혹은 
+    ```
+    $ node ./bin/www
+    ```
 
 3. 브라우저로 [접속](http://localhost:4885)
 
