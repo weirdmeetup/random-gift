@@ -1,0 +1,27 @@
+head
+    meta(charset='utf-8')
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://www.fuelcdn.com/fuelux/3.13.0/css/fuelux.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js')
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==", crossorigin="anonymous")
+    script(type='text/javascript' src='https://www.fuelcdn.com/fuelux/3.13.0/js/fuelux.min.js')
+    script(type='text/javascript').
+        $(document).ready(function () {
+            $('#myWizard').wizard('selectedItem', {
+                step: 1
+            });
+        });
+
+body.fuelux
+    .container
+        if msg
+            div(class='alert alert-danger') #{msg}
+        .row
+            h3 대상자 email 등록
+            form(method="post" action="/csv" enctype="multipart/form-data")
+                p email이 가득담긴 csv 파일 선택하세요.
+                input#payload(type="file" class='btn' name="myFile" accept="csv/*")
+                input(type='submit', value='Upload' class='btn btn-success')
+        include step
