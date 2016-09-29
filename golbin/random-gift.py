@@ -21,7 +21,7 @@ for row in csvReader:
 
 f.close()
 
-random.shuffle(email);
+random.shuffle(email)
 
 # 2/2 경품 배정
 
