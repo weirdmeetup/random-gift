@@ -1,0 +1,45 @@
+head
+    meta(charset='utf-8')
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://www.fuelcdn.com/fuelux/3.13.0/css/fuelux.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(type='text/javascript' src='http://code.jquery.com/jquery-2.1.4.min.js')
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==", crossorigin="anonymous")
+    script(type='text/javascript' src='https://www.fuelcdn.com/fuelux/3.13.0/js/fuelux.min.js')
+
+body.fuelux
+    .container
+        .row
+            if products
+                #productlist
+                    h3 상품 정보
+                    table(class="table table-striped")
+                        thead
+                            tr
+                                td 상품명
+                                td 재고
+                                td 추첨버튼
+                        tbody
+                            for product,i in products
+                                tr
+                                    td #{product['name']}
+                                    td
+                                        - var percent = product['remain']/product['qyt'];
+                                        progress(value="#{percent}" max="1")
+                                        p #{product['remain']} / #{product['qyt']}
+                                    if( product['remain'] > 0 )
+                                        td
+                                            form(class='form-inline', action='/gacha', method="post")
+                                                input(type='hidden', class='form-control', value='#{product["productKeyNo"]}', name='productKeyNo')
+                                                input(type='submit', value='추첨', class='btn btn-success')
+                                    else
+                                        td
+                                            span(class="glyphicon glyphicon-ok-circle" aria-hidden="true" style='color:#5cb85c;font-size:30')
+        .row
+            if winners
+                #gacharesult
+                    h3 추첨 결과
+                    ul.list-group
+                        for winner,i in winners
+                            li.list-group-item #{winner['productName']} - #{winner['getNumber']} - #{winner['email']}
