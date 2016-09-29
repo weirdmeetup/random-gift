@@ -1,14 +1,3 @@
 # random-gift
 
-이상한모임 경품추첨 프로그램으로 만들었으나 채택 안되도 개인적으로 쓸 수 있을것 같아서 참여했다.
-
-# 개발 목표
-- 배포, 설치, 인터넷 연결 등 골치아픈 일 없이 브라우저에서 열기만 해도 바로 볼 수 있는 프로그램 작성
-
-# 어려웠던/아쉬웠던 점
-- Javascript라 오류를 매번 runtime 에서 확인해야 했다는 점
-- 다행히 Visual studio code 의 강력한 intellisense 기능 덕에 비교적 수월했음
-- ReactiveX 나 jQuery 같은거 써서 좀더 기교를 부려볼까 했지만 배보다 배꼽이 더 커질 것 같아 쓰지 않았던 점. 이로 인해 기능에 비해 코드가 다소 길어짐
-
-# 소회
-- 자바스크립트 코딩 생각보다 재밌네???
+You should read the rules of game. https://github.com/weirdmeetup/random-gift/wiki
