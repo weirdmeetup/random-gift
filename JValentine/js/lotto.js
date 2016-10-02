@@ -278,16 +278,5 @@ let WeirdMeetup = {
         alert('경품 디비 데이터를 입력 하여주십시오.');
       });
     });
-
-    /*let exportObj = {};
-    let blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"}),
-      filename = 'export_data.txt',
-      url = window.URL.createObjectURL(blob);
-    console.log($('#exportDataDown'));
-    $('#exportDataDown')
-      .attr('href', url)
-      .attr('download', filename)
-    console.log($('#exportDataDown'));
-    $('#exportDataDown').click();*/
   }
 }
