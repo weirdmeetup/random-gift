@@ -194,6 +194,24 @@ let WeirdMeetup = {
           )
       )
     }
+    // <button type="button" class="btn btn-default" onclick="WeirdMeetup.doCVSFileRead()"> 입력 </button>
+    lottoPanel.append(
+      $('<button></button>')
+        .attr('type', 'type')
+        .addClass('btn btn-default')
+        .text('추첨 결과 백업하기')
+        .on({
+          click: () => {
+            WeirdMeetup.doLottdExport();
+          }
+        })
+    )
+    lottoPanel.append (
+        $('<a></a>')
+          .css('display', 'none')
+          .attr('id', 'exportDataDown')
+    )
+
   },
   doLotto: (giftIdx, gift) => {
     const winner = WeirdMeetup.members[Math.floor(Math.random() * WeirdMeetup.members.length)],
@@ -225,5 +243,51 @@ let WeirdMeetup = {
         $('#gift_' + giftIdx + 'winner').append(winner.email);
       }
     }
+  },
+  doLottdExport: () => {
+    let exportData = [];
+    openDB.transaction((tx) => {
+      tx.executeSql('SELECT rowid, product, count, remain_count, winner FROM weirdMeetup_GiftList', [], (tx, results) => {
+        var tmplistData = results.rows;
+        if (tmplistData.length === 1) {
+          alert('입력된 선물 데이터가 존재하지 않습니다.');
+          return;
+        } else {
+          for (let i = 0; i < tmplistData.length; i++) {
+            let winnerList = tmplistData[i].winner.split(',');
+            for (let j = 0; j < winnerList.length; j++) {
+              if (winnerList[j] != '') {
+                let tmpPrintText = '상품 ' + tmplistData[i].product + ' - ' + (j + 1) + ' - ' + winnerList[j] + '\r\n';
+                exportData.push(tmpPrintText);
+              }
+            }
+            WeirdMeetup.gift.push({idx: tmplistData[i].rowid, gift: tmplistData[i].product, count: tmplistData[i].count, remain_count: tmplistData[i].remain_count, winner: tmplistData[i].winner});
+          }
+          const blob = new Blob(exportData, {type: "text/plain;charset=utf-8"}),
+            url = window.URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          a.style = "display: none";
+          a.href = url;
+          a.download = 'export_data.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }
+      }, (tx) => {
+        alert('경품 디비 데이터를 입력 하여주십시오.');
+      });
+    });
+
+    /*let exportObj = {};
+    let blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"}),
+      filename = 'export_data.txt',
+      url = window.URL.createObjectURL(blob);
+    console.log($('#exportDataDown'));
+    $('#exportDataDown')
+      .attr('href', url)
+      .attr('download', filename)
+    console.log($('#exportDataDown'));
+    $('#exportDataDown').click();*/
   }
 }
