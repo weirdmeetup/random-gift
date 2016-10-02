@@ -3,32 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>이모콘 당첨자 발표</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script   src="https://code.jquery.com/jquery-3.1.1.slim.min.js"   integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="   crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="js/init.js" type="application/javascript"></script>
     <script src="js/lotto.js" type="application/javascript"></script>
+    <style>
+        .panel-heading h3,
+        .panel-heading .btn-group
+        {
+            display:inline-block;
+        }
+    </style>
 </head>
 <body>
-<div>
-    <input type="file" id="csvfile">
-    <textarea id="csvlist" style="width: 400px; height: 500px;"></textarea>
-    <!-- <input type="button" onclick="WeirdMeetup.doMemberInsert()" value="입력"> -->
-    <input type="button" onclick="WeirdMeetup.doMemberInsert()" value="입력">
-</div>
-<div>
-    <table id="member_list">
-        <thead>
-            <tr>
-                <th>idx</th>
-                <th>이메일</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
-<!-- 경품리스트 -->
-<div>
-    <input type="text" class="gift" placeholder="경품 입력">
-</div>
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">유저 입력</div>
+            <div class="panel-body">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <input type="file" id="csvfile">
+                    </div>
+                    <button type="button" class="btn btn-default" onclick="WeirdMeetup.doCVSFileRead()"> 입력 </button>
+                </form>
+                <button type="button" class="btn btn-default" onclick="WeirdMeetup.hideUserListHideShow()"> 유저 목록 감추기 </button>
+                <table id="member_list"  class="table">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>이메일</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- 경품리스트 -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="panel-title">상품 정보 입력</span>
+                <div class="btn-group pull-right">
+                    <a class="btn btn-default btn-sm" onclick="WeirdMeetup.giftModeChange('insert')">입력모드</a>
+                    <a class="btn btn-default btn-sm" onclick="WeirdMeetup.giftModeChange('lotto')">추첨모드</a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="insertMode">
+                    <div class="form-group">
+                        <label for="giftinsert">상품 입력:</label>
+                        <textarea class="form-control" id="giftinsert" rows="10" placeholder="이모 아파트, 2&#13;&#10;이모 단독주택, 2&#13;&#10;이모차, 10&#13;&#10;이모맥북프로, 10"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-default" onclick="WeirdMeetup.doGiftListInsert()">입력</button>
+                </div>
+                <div id="lottoMode" style="display: none">
 
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

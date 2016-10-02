@@ -1,3 +1,3 @@
-# random-gift
+으아아앙아아아앙아아아아아앙아아으아아앙아아아앙아아아아아앙아아으아아앙아아아앙아아아아아앙아아으아아앙아아아앙아아아아아앙아아으아아앙아아아앙아아아아아앙아아으아아앙아아아앙아아아아아앙아아
 
-You should read the rules of game. https://github.com/weirdmeetup/random-gift/wiki
+추후 업뎃 예정...
