@@ -1,0 +1,442 @@
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$Main$extractEmail = function (line) {
+	var _p0 = _elm_lang$core$List$head(line);
+	if (_p0.ctor === 'Just') {
+		return _p0._0;
+	} else {
+		return '';
+	}
+};
+var _user$project$Main$onchange = function (action) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(
+			_elm_lang$core$Json_Decode$object1,
+			function (v) {
+				return action(v);
+			},
+			_user$project$FileReader$parseSelectedFiles));
+};
+var _user$project$Main$inputStyle = _elm_lang$core$Native_List.fromArray(
+	[
+		{ctor: '_Tuple2', _0: 'margin-right', _1: '5px'}
+	]);
+var _user$project$Main$winnerText = function (winner) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		winner.itemName,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			' - ',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Basics$toString(winner.uid),
+				A2(_elm_lang$core$Basics_ops['++'], ' - ', winner.email))));
+};
+var _user$project$Main$winnerDiv = function (winners) {
+	var _p1 = winners;
+	if (_p1.ctor === '[]') {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[]));
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			A2(
+				_elm_lang$core$List$map,
+				function (winner) {
+					return A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(
+								_user$project$Main$winnerText(winner))
+							]));
+				},
+				winners));
+	}
+};
+var _user$project$Main$takeEmailFromList = F2(
+	function (list, idx) {
+		var restList = A2(_elm_lang$core$List$drop, idx, list);
+		var _p2 = _elm_lang$core$List$head(restList);
+		if (_p2.ctor === 'Just') {
+			return _p2._0;
+		} else {
+			return '';
+		}
+	});
+var _user$project$Main$emailListWithout = F2(
+	function (list, idx) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(_elm_lang$core$List$take, idx, list),
+			A2(_elm_lang$core$List$drop, idx + 1, list));
+	});
+var _user$project$Main$Model = F5(
+	function (a, b, c, d, e) {
+		return {selected: a, message: b, emailList: c, item: d, winners: e};
+	});
+var _user$project$Main$Item = F2(
+	function (a, b) {
+		return {name: a, count: b};
+	});
+var _user$project$Main$initItem = A2(_user$project$Main$Item, '', 1);
+var _user$project$Main$initModel = A5(
+	_user$project$Main$Model,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	'CSV 파일을 선택해주세요!',
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_user$project$Main$initItem,
+	_elm_lang$core$Native_List.fromArray(
+		[]));
+var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$initModel, _1: _elm_lang$core$Platform_Cmd$none};
+var _user$project$Main$Winner = F3(
+	function (a, b, c) {
+		return {email: a, uid: b, itemName: c};
+	});
+var _user$project$Main$UpdateWinner = F4(
+	function (a, b, c, d) {
+		return {ctor: 'UpdateWinner', _0: a, _1: b, _2: c, _3: d};
+	});
+var _user$project$Main$Pick = F2(
+	function (a, b) {
+		return {ctor: 'Pick', _0: a, _1: b};
+	});
+var _user$project$Main$ResetItem = {ctor: 'ResetItem'};
+var _user$project$Main$updateWinnerCmdWrapper = F3(
+	function (name, maxIdx, count) {
+		return _elm_lang$core$Native_Utils.eq(count, 0) ? A3(
+			_elm_lang$core$Task$perform,
+			_elm_lang$core$Basics$identity,
+			_elm_lang$core$Basics$identity,
+			_elm_lang$core$Task$succeed(_user$project$Main$ResetItem)) : A2(
+			_elm_lang$core$Random$generate,
+			A3(
+				_user$project$Main$UpdateWinner,
+				name,
+				count,
+				A3(_user$project$Main$updateWinnerCmdWrapper, name, maxIdx - 1, count - 1)),
+			A2(_elm_lang$core$Random$int, 0, maxIdx));
+	});
+var _user$project$Main$UpdateItemCount = function (a) {
+	return {ctor: 'UpdateItemCount', _0: a};
+};
+var _user$project$Main$UpdateItemName = function (a) {
+	return {ctor: 'UpdateItemName', _0: a};
+};
+var _user$project$Main$itemDiv = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$style(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'padding', _1: '10px 0'}
+					]))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$input,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$style(_user$project$Main$inputStyle),
+						_elm_lang$html$Html_Attributes$type$('text'),
+						_elm_lang$html$Html_Attributes$id('gift-name-input'),
+						_elm_lang$html$Html_Attributes$placeholder('경품이름'),
+						_elm_lang$html$Html_Attributes$value(model.item.name),
+						_elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateItemName)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[])),
+				A2(
+				_elm_lang$html$Html$input,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$style(
+						A2(
+							_elm_lang$core$List_ops['::'],
+							{ctor: '_Tuple2', _0: 'width', _1: '30px'},
+							_user$project$Main$inputStyle)),
+						_elm_lang$html$Html_Attributes$type$('number'),
+						_elm_lang$html$Html_Attributes$placeholder('0'),
+						_elm_lang$html$Html_Attributes$value(
+						_elm_lang$core$Basics$toString(model.item.count)),
+						_elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateItemCount)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(
+						A2(_user$project$Main$Pick, model.item.name, model.item.count)),
+						_elm_lang$html$Html_Attributes$title('경품 종류당 한번만 추첨할 수 있습니다')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('추첨')
+					]))
+			]));
+};
+var _user$project$Main$FileDataFail = function (a) {
+	return {ctor: 'FileDataFail', _0: a};
+};
+var _user$project$Main$FileDataSucceed = function (a) {
+	return {ctor: 'FileDataSucceed', _0: a};
+};
+var _user$project$Main$readTextFile = function (fileValue) {
+	return A3(
+		_elm_lang$core$Task$perform,
+		_user$project$Main$FileDataFail,
+		_user$project$Main$FileDataSucceed,
+		_user$project$FileReader$readAsTextFile(fileValue.blob));
+};
+var _user$project$Main$FileSelect = function (a) {
+	return {ctor: 'FileSelect', _0: a};
+};
+var _user$project$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$style(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'padding', _1: '30px'}
+					]))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$h1,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Random gift')
+					])),
+				A2(
+				_elm_lang$html$Html$input,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$type$('file'),
+						_user$project$Main$onchange(_user$project$Main$FileSelect),
+						_elm_lang$html$Html_Attributes$disabled(
+						_elm_lang$core$Native_Utils.cmp(
+							_elm_lang$core$List$length(model.selected),
+							0) > 0),
+						_elm_lang$html$Html_Attributes$multiple(false),
+						_elm_lang$html$Html_Attributes$accept('.csv')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'padding', _1: '10px'}
+							]))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(model.message)
+					])),
+				_user$project$Main$itemDiv(model),
+				_user$project$Main$winnerDiv(model.winners)
+			]));
+};
+var _user$project$Main$Noop = {ctor: 'Noop'};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
+			case 'Noop':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'FileSelect':
+				var _p5 = _p3._0;
+				var _p4 = _p5;
+				if (_p4.ctor === '[]') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_user$project$Main$initModel,
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{selected: _p5}),
+						A2(_elm_lang$core$List$map, _user$project$Main$readTextFile, _p5));
+				}
+			case 'FileDataSucceed':
+				var parsedList = _lovasoa$elm_csv$Csv$parse(_p3._0);
+				var emailList = A2(
+					_elm_lang$core$List$filter,
+					function (email) {
+						return !_elm_lang$core$Native_Utils.eq(email, '');
+					},
+					A2(_elm_lang$core$List$map, _user$project$Main$extractEmail, parsedList.records));
+				var newMessage = A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(
+						_elm_lang$core$List$length(emailList)),
+					'개의 이메일이 추가되었습니다 :)');
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{emailList: emailList, message: newMessage}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'FileDataFail':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _user$project$FileReader$toString(_p3._0)
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'UpdateItemName':
+				var oldItem = model.item;
+				var newItem = _elm_lang$core$Native_Utils.update(
+					oldItem,
+					{name: _p3._0});
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{item: newItem}),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
+			case 'UpdateItemCount':
+				var newCountInt = _elm_lang$core$String$toInt(_p3._0);
+				var oldItem = model.item;
+				var _p6 = newCountInt;
+				if (_p6.ctor === 'Ok') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								item: _elm_lang$core$Native_Utils.update(
+									oldItem,
+									{count: _p6._0})
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								item: _elm_lang$core$Native_Utils.update(
+									oldItem,
+									{count: 0})
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				}
+			case 'ResetItem':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{item: _user$project$Main$initItem}),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A3(
+							_elm_lang$core$Task$perform,
+							_elm_lang$core$Basics$always(_user$project$Main$Noop),
+							_elm_lang$core$Basics$always(_user$project$Main$Noop),
+							_elm_lang$dom$Dom$focus('gift-name-input'))
+						]));
+			case 'Pick':
+				var _p8 = _p3._0;
+				var _p7 = _p3._1;
+				var maxIdx = _elm_lang$core$List$length(model.emailList) - 1;
+				return _elm_lang$core$Native_Utils.eq(
+					_elm_lang$core$List$length(model.selected),
+					0) ? A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{message: '파일을 먼저 선택해주세요!'}),
+					_elm_lang$core$Native_List.fromArray(
+						[])) : (_elm_lang$core$Native_Utils.eq(_p8, '') ? A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{message: '추첨하려는 경품 이름을 입력해주세요!'}),
+					_elm_lang$core$Native_List.fromArray(
+						[])) : ((_elm_lang$core$Native_Utils.cmp(
+					_elm_lang$core$List$length(model.emailList),
+					_p7) < 0) ? A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{message: '주어진 이메일 개수가 경품수보다 적습니다!'}),
+					_elm_lang$core$Native_List.fromArray(
+						[])) : A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$core$Random$generate,
+							A3(
+								_user$project$Main$UpdateWinner,
+								_p8,
+								_p7,
+								A3(_user$project$Main$updateWinnerCmdWrapper, _p8, maxIdx - 1, _p7 - 1)),
+							A2(_elm_lang$core$Random$int, 0, maxIdx))
+						]))));
+			default:
+				var _p9 = _p3._3;
+				var newEmailList = A2(_user$project$Main$emailListWithout, model.emailList, _p9);
+				var winnerEmail = A2(_user$project$Main$takeEmailFromList, model.emailList, _p9);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							emailList: newEmailList,
+							winners: A2(
+								_elm_lang$core$List_ops['::'],
+								A3(_user$project$Main$Winner, winnerEmail, _p3._1, _p3._0),
+								model.winners)
+						}),
+					_elm_lang$core$Native_List.fromArray(
+						[_p3._2]));
+		}
+	});
+var _user$project$Main$main = {
+	main: _elm_lang$html$Html_App$program(
+		{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})
+};
