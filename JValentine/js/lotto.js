@@ -7,7 +7,6 @@ let WeirdMeetup = {
     const memberListArr = WeirdMeetup.tmpmembers;
     openDB.transaction(function (tx) {
       tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_MemberList', [], (tx, results) => {
-        var test = results.rows;
         if (results.rows[0]['COUNT(rowid)'] > 0) {
           if (window.confirm('Old Data inserted weirdMeetup_MemberList Database. Do you want delete old data?')) {
             alert('과거 회원 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
@@ -23,8 +22,7 @@ let WeirdMeetup = {
       });
     });
     for (var i = 0; i < memberListArr.length; i++) {
-      let tmpIdx = i,
-        tmpEmail = memberListArr[i],
+      let tmpEmail = memberListArr[i],
         slackID = '',
         giftFlag = 0,
         giftCode = null;
@@ -138,6 +136,7 @@ let WeirdMeetup = {
           alert('입력된 선물 데이터가 존재하지 않습니다.');
           return;
         } else {
+          WeirdMeetup.gift = [];
           for (let i = 0; i < tmplistData.length; i++) {
             WeirdMeetup.gift.push({idx: tmplistData[i].rowid, gift: tmplistData[i].product, count: tmplistData[i].count, remain_count: tmplistData[i].remain_count, winner: tmplistData[i].winner});
           }
@@ -150,7 +149,7 @@ let WeirdMeetup = {
   },
   drawLottoPanel: () => {
     const lottoPanel = $('#lottoMode');
-
+    $('#lottoMode').empty();
     for (let i = 0; i < WeirdMeetup.gift.length; i++) {
       const tmpLine = WeirdMeetup.gift[i],
         giftIdx = tmpLine.idx,
@@ -159,7 +158,6 @@ let WeirdMeetup = {
         winner = tmpLine.winner,
         winnerlength = winner === '' ? 0 : winner.split(',').length,
         remaincount = count - winnerlength;
-
       lottoPanel.append(
         $('<div></div>').addClass('panel panel-default')
           .append(
@@ -184,6 +182,16 @@ let WeirdMeetup = {
                       }
                     })
                   )
+                  .append(
+                    $('<a></a>')
+                      .addClass('btn btn-default btn-sm')
+                      .text('재추첨!')
+                      .on({
+                        click: () => {
+                          WeirdMeetup.doReLotto(giftIdx, gift);
+                        }
+                      })
+                  )
               )
           )
           .append(
@@ -194,7 +202,6 @@ let WeirdMeetup = {
           )
       )
     }
-    // <button type="button" class="btn btn-default" onclick="WeirdMeetup.doCVSFileRead()"> 입력 </button>
     lottoPanel.append(
       $('<button></button>')
         .attr('type', 'type')
@@ -205,7 +212,7 @@ let WeirdMeetup = {
             WeirdMeetup.doLottdExport();
           }
         })
-    )
+    );
     lottoPanel.append (
         $('<a></a>')
           .css('display', 'none')
@@ -225,7 +232,7 @@ let WeirdMeetup = {
     } else if (winner.giftflag === false) {
       WeirdMeetup.members[winner.idx - 1].giftflag = true;
       WeirdMeetup.gift[giftIdx - 1].winner = WeirdMeetup.gift[giftIdx - 1].winner === ''? winner.email:WeirdMeetup.gift[giftIdx - 1].winner + ', ' + winner.email;
-      WeirdMeetup.gift[giftIdx - 1].remain_count = WeirdMeetup.gift[giftIdx - 1].remain_count - 1;
+      WeirdMeetup.gift[giftIdx - 1].remain_count = parseInt(WeirdMeetup.gift[giftIdx - 1].remain_count) - 1;
       openDB.transaction(function (tx) {
         tx.executeSql('UPDATE weirdMeetup_MemberList SET giftflag = 1 WHERE rowid = ' + winner.idx, [], (tx, results) => {
           var test = results.rows;
@@ -233,9 +240,11 @@ let WeirdMeetup = {
         tx.executeSql('UPDATE weirdMeetup_GiftList SET winner = "' + WeirdMeetup.gift[giftIdx - 1].winner + '" WHERE rowid = ' + giftIdx, [], (tx, results) => {
           var test = results.rows;
         });
+        tx.executeSql('UPDATE weirdMeetup_GiftList SET remain_count = "' + WeirdMeetup.gift[giftIdx - 1].remain_count + '" WHERE rowid = ' + giftIdx, [], (tx, results) => {
+          var test = results.rows;
+        });
       });
-
-      $('#gift_' + giftIdx + 'title').text(giftList[giftIdx - 1].idx + '. ' + giftList[giftIdx - 1].gift + '( 수량: ' + giftList[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + giftList[giftIdx - 1].remain_count + ' 개)')
+      $('#gift_' + giftIdx + 'title').text(giftList[giftIdx - 1].idx + '. ' + giftList[giftIdx - 1].gift + '( 수량: ' + giftList[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + giftList[giftIdx - 1].remain_count + ' 개)');
 
       if ($('#gift_' + giftIdx + 'winner').text() !== '') {
         $('#gift_' + giftIdx + 'winner').append(', ' + winner.email);
@@ -243,6 +252,42 @@ let WeirdMeetup = {
         $('#gift_' + giftIdx + 'winner').append(winner.email);
       }
     }
+  },
+  doReLotto: (giftIdx, gift) => {
+    console.log(WeirdMeetup.gift[giftIdx - 1]);
+    if (WeirdMeetup.gift[giftIdx - 1].winner === '') {
+      alert('아직 추첨된 사람이 존재하지 않습니다.');
+      return;
+    }
+    openDB.transaction((tx) => {
+      tx.executeSql('SELECT winner FROM weirdMeetup_GiftList WHERE rowid=' + giftIdx, [], (tx, results) => {
+        var tmplistData = results.rows;
+        for (let i = 0; i < tmplistData.length; i++) {
+          if (tmplistData[i].winner === '') {
+            alert('아직 추첨된 사람이 존재하지 않습니다.');
+            return;
+          } else {
+            let winnerList = tmplistData[i].winner.split(', ');
+            let deletedMember = winnerList[winnerList.length - 1];
+            console.log(tmplistData[i]);
+            console.log(winnerList);
+            console.log(deletedMember);
+            winnerList.splice(winnerList.length - 1, 1);
+            console.log(winnerList);
+            console.log(WeirdMeetup.gift[giftIdx - 1]);
+            WeirdMeetup.gift[giftIdx - 1].winner = winnerList.join(', ');
+            WeirdMeetup.gift[giftIdx - 1].remain_count = parseInt(WeirdMeetup.gift[giftIdx - 1].remain_count) + 1;
+
+            $('#gift_' + giftIdx + 'title').text(WeirdMeetup.gift[giftIdx - 1].idx + '. ' + WeirdMeetup.gift[giftIdx - 1].gift + '( 수량: ' + WeirdMeetup.gift[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + WeirdMeetup.gift[giftIdx - 1].remain_count + ' 개)');
+            $('#gift_' + giftIdx + 'winner').text(WeirdMeetup.gift[giftIdx - 1].winner);
+            WeirdMeetup.doLotto(giftIdx, gift);
+          }
+        }
+      }, (tx) => {
+        console.log(tx);
+        alert('경품 디비 데이터를 입력 하여주십시오.');
+      });
+    });
   },
   doLottdExport: () => {
     let exportData = [];
@@ -279,4 +324,4 @@ let WeirdMeetup = {
       });
     });
   }
-}
+};
