@@ -8,7 +8,7 @@ let WeirdMeetup = {
     openDB.transaction(function (tx) {
       tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_MemberList', [], (tx, results) => {
         if (results.rows[0]['COUNT(rowid)'] > 0) {
-          if (window.confirm('Old Data inserted weirdMeetup_MemberList Database. Do you want delete old data?')) {
+          if (window.confirm('과거 회원 데이터가 데이터베이스에 입력되어 있습니다. 과거 데이터를 삭제하시겠습니까??')) {
             alert('과거 회원 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
             tx.executeSql('DELETE FROM weirdMeetup_MemberList');
             return;
@@ -84,7 +84,7 @@ let WeirdMeetup = {
       tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_GiftList', [], (tx, results) => {
         var test = results.rows;
         if (results.rows[0]['COUNT(rowid)'] > 0) {
-          if (window.confirm('Old Data inserted weirdMeetup_GiftList Database. Do you want delete old data?')) {
+          if (window.confirm('과거 선물 데이터가 데이터베이스에 들어있습니다. 과거 데이터를 삭제하시겠습니까?')) {
             alert('과거 선물 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
             tx.executeSql('DELETE FROM weirdMeetup_GiftList');
             return;
