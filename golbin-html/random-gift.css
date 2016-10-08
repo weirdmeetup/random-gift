@@ -9,6 +9,7 @@
 }
 
 .label {
+    padding-top: 5px;
     float: left;
 }
 
@@ -18,13 +19,17 @@
 }
 
 .gift input {
-    padding: 5px;
+    padding: 8px;
     border: 0;
     border-bottom: 1px solid #ccc;
 }
 
 .action {
     float: left;
+}
+
+.action .spin-button {
+    margin-top: 5px;
 }
 
 .winner {
@@ -39,8 +44,11 @@
 }
 
 .winner .wrapper {
-    margin-top: -6px;
     width: 100px;
+}
+
+.winner .wrapper .entrie {
+    height: 25px;
 }
 
 .winner .slot {
