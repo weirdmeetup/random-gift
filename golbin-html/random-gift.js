@@ -20,7 +20,7 @@ var loadSlot = function (winnerSlot){
     shuffle(entries);
 
     for (var i = 0; i < entries.length && i < 33; i++) {
-        winnerSlot.append('<div class="entrie">' + entries[i] + '</div>');
+        winnerSlot.append('<div class="entry">' + entries[i] + '</div>');
     }
 }
 
