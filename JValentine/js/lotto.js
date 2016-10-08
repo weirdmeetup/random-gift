@@ -7,9 +7,8 @@ let WeirdMeetup = {
     const memberListArr = WeirdMeetup.tmpmembers;
     openDB.transaction(function (tx) {
       tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_MemberList', [], (tx, results) => {
-        var test = results.rows;
         if (results.rows[0]['COUNT(rowid)'] > 0) {
-          if (window.confirm('Old Data inserted weirdMeetup_MemberList Database. Do you want delete old data?')) {
+          if (window.confirm('과거 회원 데이터가 데이터베이스에 입력되어 있습니다. 과거 데이터를 삭제하시겠습니까??')) {
             alert('과거 회원 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
             tx.executeSql('DELETE FROM weirdMeetup_MemberList');
             return;
@@ -23,8 +22,7 @@ let WeirdMeetup = {
       });
     });
     for (var i = 0; i < memberListArr.length; i++) {
-      let tmpIdx = i,
-        tmpEmail = memberListArr[i],
+      let tmpEmail = memberListArr[i],
         slackID = '',
         giftFlag = 0,
         giftCode = null;
@@ -72,33 +70,19 @@ let WeirdMeetup = {
       });
     });
   },
-  hideUserListHideShow: () => {
+  hideUserListHideShow: (el) => {
     if ($('#member_list').is(":visible") === true) {
       $('#member_list').hide();
+      el.innerText = '유저 목록 보기';
     } else if ($('#member_list').is(":visible") === false) {
       $('#member_list').show();
+      el.innerText = '유저 목록 감추기';
     }
   },
   doGiftListInsert: () => {
     const giftlist = $('#giftinsert').val().split('\n');
     let countError = false;
-    openDB.transaction(function (tx) {
-      tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_GiftList', [], (tx, results) => {
-        var test = results.rows;
-        if (results.rows[0]['COUNT(rowid)'] > 0) {
-          if (window.confirm('Old Data inserted weirdMeetup_GiftList Database. Do you want delete old data?')) {
-            alert('과거 선물 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
-            tx.executeSql('DELETE FROM weirdMeetup_GiftList');
-            return;
-          } else {
-            alert('입력 취소');
-            return;
-          }
-        }
-      }, (tx) => {
-        tx.executeSql('CREATE TABLE weirdMeetup_GiftList (product, count, remain_count, winner)');
-      });
-    });
+
     for (let i = 0; i < giftlist.length; i++) {
       let count = giftlist[i].split(',')[1].trim();
       const num_check=/^[0-9]*$/;
@@ -108,17 +92,41 @@ let WeirdMeetup = {
         return;
       }
     }
-    if (countError === false) {
-      for (let i = 0; i < giftlist.length; i++) {
-        let product = giftlist[i].split(',')[0].trim(),
-          count = giftlist[i].split(',')[1].trim(),
-          winner = '';
-        openDB.transaction((tx) => {
-          tx.executeSql('INSERT INTO weirdMeetup_GiftList (product, count, remain_count, winner) VALUES ("' + product + '", "' + count + '", "' + count + '", "")', [], (tx, results) => {
+
+    const insertRun = () => {
+      if (countError === false) {
+        for (let i = 0; i < giftlist.length; i++) {
+          let product = giftlist[i].split(',')[0].trim(),
+            count = giftlist[i].split(',')[1].trim(),
+            winner = '';
+          openDB.transaction((tx) => {
+            tx.executeSql('INSERT INTO weirdMeetup_GiftList (product, count, remain_count, winner) VALUES ("' + product + '", "' + count + '", "' + count + '", "")', [], (tx, results) => {
+            });
           });
-        });
+        }
+        WeirdMeetup.giftModeChange('lotto');
       }
-    }
+    };
+
+    openDB.transaction(function (tx) {
+      tx.executeSql('SELECT COUNT(rowid) FROM weirdMeetup_GiftList', [], (tx, results) => {
+        var test = results.rows;
+        if (results.rows[0]['COUNT(rowid)'] > 0) {
+          if (window.confirm('과거 선물 데이터가 데이터베이스에 들어있습니다. 과거 데이터를 삭제하시겠습니까?')) {
+            alert('과거 선물 데이터가 삭제 되고 새로운 데이터가 입력이 됩니다.');
+            tx.executeSql('DELETE FROM weirdMeetup_GiftList');
+            insertRun();
+            return;
+          } else {
+            alert('입력 취소');
+            return;
+          }
+        }
+      }, (tx) => {
+        tx.executeSql('CREATE TABLE weirdMeetup_GiftList (product, count, remain_count, winner)');
+        insertRun();
+      });
+    });
   },
   giftModeChange: (mode) => {
     if (mode === 'insert') {
@@ -138,6 +146,7 @@ let WeirdMeetup = {
           alert('입력된 선물 데이터가 존재하지 않습니다.');
           return;
         } else {
+          WeirdMeetup.gift = [];
           for (let i = 0; i < tmplistData.length; i++) {
             WeirdMeetup.gift.push({idx: tmplistData[i].rowid, gift: tmplistData[i].product, count: tmplistData[i].count, remain_count: tmplistData[i].remain_count, winner: tmplistData[i].winner});
           }
@@ -150,7 +159,7 @@ let WeirdMeetup = {
   },
   drawLottoPanel: () => {
     const lottoPanel = $('#lottoMode');
-
+    $('#lottoMode').empty();
     for (let i = 0; i < WeirdMeetup.gift.length; i++) {
       const tmpLine = WeirdMeetup.gift[i],
         giftIdx = tmpLine.idx,
@@ -159,7 +168,6 @@ let WeirdMeetup = {
         winner = tmpLine.winner,
         winnerlength = winner === '' ? 0 : winner.split(',').length,
         remaincount = count - winnerlength;
-
       lottoPanel.append(
         $('<div></div>').addClass('panel panel-default')
           .append(
@@ -184,6 +192,16 @@ let WeirdMeetup = {
                       }
                     })
                   )
+                  .append(
+                    $('<a></a>')
+                      .addClass('btn btn-default btn-sm')
+                      .text('재추첨!')
+                      .on({
+                        click: () => {
+                          WeirdMeetup.doReLotto(giftIdx, gift);
+                        }
+                      })
+                  )
               )
           )
           .append(
@@ -194,7 +212,6 @@ let WeirdMeetup = {
           )
       )
     }
-    // <button type="button" class="btn btn-default" onclick="WeirdMeetup.doCVSFileRead()"> 입력 </button>
     lottoPanel.append(
       $('<button></button>')
         .attr('type', 'type')
@@ -205,7 +222,7 @@ let WeirdMeetup = {
             WeirdMeetup.doLottdExport();
           }
         })
-    )
+    );
     lottoPanel.append (
         $('<a></a>')
           .css('display', 'none')
@@ -225,7 +242,7 @@ let WeirdMeetup = {
     } else if (winner.giftflag === false) {
       WeirdMeetup.members[winner.idx - 1].giftflag = true;
       WeirdMeetup.gift[giftIdx - 1].winner = WeirdMeetup.gift[giftIdx - 1].winner === ''? winner.email:WeirdMeetup.gift[giftIdx - 1].winner + ', ' + winner.email;
-      WeirdMeetup.gift[giftIdx - 1].remain_count = WeirdMeetup.gift[giftIdx - 1].remain_count - 1;
+      WeirdMeetup.gift[giftIdx - 1].remain_count = parseInt(WeirdMeetup.gift[giftIdx - 1].remain_count) - 1;
       openDB.transaction(function (tx) {
         tx.executeSql('UPDATE weirdMeetup_MemberList SET giftflag = 1 WHERE rowid = ' + winner.idx, [], (tx, results) => {
           var test = results.rows;
@@ -233,9 +250,11 @@ let WeirdMeetup = {
         tx.executeSql('UPDATE weirdMeetup_GiftList SET winner = "' + WeirdMeetup.gift[giftIdx - 1].winner + '" WHERE rowid = ' + giftIdx, [], (tx, results) => {
           var test = results.rows;
         });
+        tx.executeSql('UPDATE weirdMeetup_GiftList SET remain_count = "' + WeirdMeetup.gift[giftIdx - 1].remain_count + '" WHERE rowid = ' + giftIdx, [], (tx, results) => {
+          var test = results.rows;
+        });
       });
-
-      $('#gift_' + giftIdx + 'title').text(giftList[giftIdx - 1].idx + '. ' + giftList[giftIdx - 1].gift + '( 수량: ' + giftList[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + giftList[giftIdx - 1].remain_count + ' 개)')
+      $('#gift_' + giftIdx + 'title').text(giftList[giftIdx - 1].idx + '. ' + giftList[giftIdx - 1].gift + '( 수량: ' + giftList[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + giftList[giftIdx - 1].remain_count + ' 개)');
 
       if ($('#gift_' + giftIdx + 'winner').text() !== '') {
         $('#gift_' + giftIdx + 'winner').append(', ' + winner.email);
@@ -243,6 +262,35 @@ let WeirdMeetup = {
         $('#gift_' + giftIdx + 'winner').append(winner.email);
       }
     }
+  },
+  doReLotto: (giftIdx, gift) => {
+    if (WeirdMeetup.gift[giftIdx - 1].winner === '') {
+      alert('아직 추첨된 사람이 존재하지 않습니다.');
+      return;
+    }
+    openDB.transaction((tx) => {
+      tx.executeSql('SELECT winner FROM weirdMeetup_GiftList WHERE rowid=' + giftIdx, [], (tx, results) => {
+        var tmplistData = results.rows;
+        for (let i = 0; i < tmplistData.length; i++) {
+          if (tmplistData[i].winner === '') {
+            alert('아직 추첨된 사람이 존재하지 않습니다.');
+            return;
+          } else {
+            let winnerList = tmplistData[i].winner.split(', ');
+            let deletedMember = winnerList[winnerList.length - 1];
+            winnerList.splice(winnerList.length - 1, 1);
+            WeirdMeetup.gift[giftIdx - 1].winner = winnerList.join(', ');
+            WeirdMeetup.gift[giftIdx - 1].remain_count = parseInt(WeirdMeetup.gift[giftIdx - 1].remain_count) + 1;
+
+            $('#gift_' + giftIdx + 'title').text(WeirdMeetup.gift[giftIdx - 1].idx + '. ' + WeirdMeetup.gift[giftIdx - 1].gift + '( 수량: ' + WeirdMeetup.gift[giftIdx - 1].count + ' 개) ' + '( 남은 수량: ' + WeirdMeetup.gift[giftIdx - 1].remain_count + ' 개)');
+            $('#gift_' + giftIdx + 'winner').text(WeirdMeetup.gift[giftIdx - 1].winner);
+            WeirdMeetup.doLotto(giftIdx, gift);
+          }
+        }
+      }, (tx) => {
+        alert('경품 디비 데이터를 입력 하여주십시오.');
+      });
+    });
   },
   doLottdExport: () => {
     let exportData = [];
@@ -279,4 +327,4 @@ let WeirdMeetup = {
       });
     });
   }
-}
+};
