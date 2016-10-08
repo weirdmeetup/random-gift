@@ -26,7 +26,7 @@ var loadSlot = function (winnerSlot){
 var spinSlot = function (winnerSlot){
     var marginTop
         = parseInt(winnerSlot.css("margin-top"))
-        - 2 - (17 * 30);
+        - (17 * 25);
 
     winnerSlot.animate(
         {
