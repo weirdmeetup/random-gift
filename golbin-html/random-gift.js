@@ -18,7 +18,7 @@ var shuffle = function (arry) {
 var loadSlot = function (winnerSlot){
     shuffle(entries);
 
-    for(var i = 0; i < entries.length; i++){
+    for(var i = 0; i < entries.length && i < 33; i++){
         winnerSlot.append('<div class="entrie">' + entries[i] + '</div>');
     }
 }
@@ -26,7 +26,7 @@ var loadSlot = function (winnerSlot){
 var spinSlot = function (winnerSlot){
     var marginTop
         = parseInt(winnerSlot.css("margin-top"))
-        + 6 - (Math.floor(entries.length - (entries.length / 3)) * 30);
+        - 2 - (17 * 30);
 
     winnerSlot.animate(
         {
