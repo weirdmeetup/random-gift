@@ -7,10 +7,11 @@ var loadEntries = function (csvText) {
 
 var shuffle = function (arry) {
     var i, j, tmp;
-    for (i = arry.length; i; i--) {
+
+    for (i = 0; i < arry.length; i++) {
         j = Math.floor(Math.random() * i);
-        tmp = arry[i - 1];
-        arry[i - 1] = arry[j];
+        tmp = arry[i];
+        arry[i] = arry[j];
         arry[j] = tmp;
     }
 }
@@ -18,7 +19,7 @@ var shuffle = function (arry) {
 var loadSlot = function (winnerSlot){
     shuffle(entries);
 
-    for(var i = 0; i < entries.length && i < 33; i++){
+    for (var i = 0; i < entries.length && i < 33; i++) {
         winnerSlot.append('<div class="entrie">' + entries[i] + '</div>');
     }
 }
@@ -65,9 +66,9 @@ $(document).ready(function () {
         $("#prepare-area").hide("fast");
         $("#slots").show("fast");
         $("#add-entry").show("fast");
+
+        addEntry();
     });
 
     $("#add-entry").click(addEntry);
-
-    bindSpinButton();
 });
