@@ -30,24 +30,24 @@
 .winner {
     margin: 0 10px 0 10px;
     padding: 5px;
-	font-size: 20px;
-	overflow: hidden;
-	width: 200px;
-	height: 20px;
-	border-bottom: 1px solid #ccc;
-	float: left;
+    font-size: 20px;
+    overflow: hidden;
+    width: 200px;
+    height: 20px;
+    border-bottom: 1px solid #ccc;
+    float: left;
 }
 
 .winner .wrapper {
-	margin-top: -6px;
-	width: 100px;
+    margin-top: -6px;
+    width: 100px;
 }
 
 .winner .slot {
-	width: 200px;
-	height: 20px;
+    width: 200px;
+    height: 20px;
     padding: 5px;
-	text-align: center;
+    text-align: center;
 }
 
 .clear {

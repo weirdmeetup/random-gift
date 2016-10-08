@@ -18,21 +18,21 @@ var shuffle = function (arry) {
 var loadSlot = function (winnerSlot){
     shuffle(entries);
 
-	for(var i = 0; i < entries.length; i++){
-		winnerSlot.append('<div class="entrie">' + entries[i] + '</div>');
-	}
+    for(var i = 0; i < entries.length; i++){
+        winnerSlot.append('<div class="entrie">' + entries[i] + '</div>');
+    }
 }
 
 var spinSlot = function (winnerSlot){
-	var marginTop
+    var marginTop
         = parseInt(winnerSlot.css("margin-top"))
         + 6 - (Math.floor(entries.length - (entries.length / 3)) * 30);
 
-	winnerSlot.animate(
-		{
+    winnerSlot.animate(
+        {
             "margin-top": marginTop + "px"
         },
-		{
+        {
             "duration": 10000,
             "easing": "easeOutElastic"
         }
