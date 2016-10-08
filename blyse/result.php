@@ -21,9 +21,7 @@ $body = json_decode($_POST['data'], true);
 $people = array();
 if (($fp = fopen($csv_file['tmp_name'], "r")) !== FALSE) {
     while (($data = fgetcsv($fp)) !== FALSE) {
-        if (filter_var($data[0], FILTER_VALIDATE_EMAIL)) {
-            array_push($people, $data[0]);
-        }
+        array_push($people, $data[0]);
     }
 } else {
     echo json_encode(array('msg' => "CSV FILE IS NONE"));
