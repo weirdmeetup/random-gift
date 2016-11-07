@@ -17,7 +17,7 @@
 
 # 종류
 
-- random-gift-short.go 는 golbin.py 를 거의 그대로 옮겨보려고 한 것
+- random-gift-short.go 는 golbin-py/random-gift.py 를 거의 그대로 옮겨보려고 한 것
 - random-gift.go 는 go 의 다양한 기능들을 한 번 사용해봄
 
 # 주의

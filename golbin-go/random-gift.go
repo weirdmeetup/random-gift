@@ -46,7 +46,7 @@ func ReadCSV(filename string) CSVData {
 	return lines
 }
 
-func (pd Product) RetrieveProduct(count, winner int, email CSVData) Product {
+func (pd Product) Retrieve(count, winner int, email CSVData) Product {
 	return Product{
 		pd[0], // 상품
 		strconv.Itoa(count+1), // 상품 순서
@@ -62,7 +62,7 @@ func RepeatPrize() func (pd Product, email CSVData) CSVData {
 		subtotal, _ := strconv.Atoi(pd[1])
 
 		for i := 0; i < subtotal; i++ {
-			winner = append(winner, pd.RetrieveProduct(i, total, email))
+			winner = append(winner, pd.Retrieve(i, total, email))
 			total++
 		}
 
