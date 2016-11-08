@@ -46,23 +46,23 @@ func ReadCSV(filename string) CSVData {
 	return lines
 }
 
-func (pd Product) Retrieve(count, winner int, email CSVData) Product {
+func (pd Product) Assign(count int, email string) Product {
 	return Product{
 		pd[0], // 상품
 		strconv.Itoa(count+1), // 상품 순서
-		email[winner][0], // 당첨자 이메일
+		email, // 당첨자 이메일
 	}
 }
 
-func RepeatPrize() func (pd Product, email CSVData) CSVData {
+func DividePrize(email CSVData) func (pd Product) CSVData {
 	total := 0
 
-	return func (pd Product, email CSVData) CSVData {
+	return func (pd Product) CSVData {
 		winner := CSVData{}
 		subtotal, _ := strconv.Atoi(pd[1])
 
 		for i := 0; i < subtotal; i++ {
-			winner = append(winner, pd.Retrieve(i, total, email))
+			winner = append(winner, pd.Assign(i, email[total][0]))
 			total++
 		}
 
@@ -70,15 +70,15 @@ func RepeatPrize() func (pd Product, email CSVData) CSVData {
 	}
 }
 
-func DrawPrize(product CSVData, email CSVData) CSVData {
+func DrawPrize(product, email CSVData) CSVData {
 	winner := CSVData{}
 
 	Shuffle(email)
 
-	repeatPrize := RepeatPrize()
+	dividePrize := DividePrize(email)
 
 	for _, p := range product {
-		winner = append(winner, repeatPrize(p, email)...)
+		winner = append(winner, dividePrize(p)...)
 	}
 
 	return winner
